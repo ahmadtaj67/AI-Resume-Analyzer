@@ -1,0 +1,47 @@
+# AI Resume Analyzer
+
+A recruiter-level AI Resume Analyzer planned for resume upload, AI-assisted evaluation, report history, and role-based dashboards.
+
+## Planned Features
+
+- JWT-based user authentication
+- PDF resume upload
+- Resume text extraction
+- Gemini AI resume analysis
+- User dashboard for reports and history
+- Admin dashboard for platform oversight
+- Supabase PostgreSQL persistence
+- Responsive recruiter-focused UI
+- Vercel frontend deployment
+- Render backend deployment
+
+## Technology Stack
+
+- Frontend: React + Vite
+- Backend: Node.js + Express
+- Database: Supabase PostgreSQL
+- Authentication: JWT
+- AI: Gemini AI
+- File Uploads: PDF resume uploads
+- Deployment: Vercel and Render
+
+## Folder Structure
+
+```text
+AI-Resume-Analyzer/
+├── client/
+├── server/
+├── docs/
+│   ├── architecture.md
+│   └── roadmap.md
+├── .gitignore
+└── README.md
+```
+
+## Current Status
+
+Phase 1 complete.
+
+## Setup Instructions
+
+Coming in later phases.

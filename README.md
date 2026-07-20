@@ -40,10 +40,11 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 5B – User registration API complete
+Phase 5C – User login API with JWT complete
 
 ## Setup Instructions
 
 Coming in later phases.
+
 
 

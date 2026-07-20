@@ -1,5 +1,6 @@
 import supabase from '../config/supabase.js'
-import { hashPassword } from '../utils/password.js'
+import { comparePassword, hashPassword } from '../utils/password.js'
+import { generateAccessToken } from '../utils/token.js'
 import {
   normalizeEmail,
   validateEmail,
@@ -27,6 +28,8 @@ const isUniqueEmailError = (error) =>
   error?.code === '23505' ||
   error?.message?.toLowerCase().includes('profiles_email_lower_unique_idx') ||
   error?.message?.toLowerCase().includes('duplicate key')
+
+const INVALID_CREDENTIALS_MESSAGE = 'Invalid email or password'
 
 export const registerUser = async ({ fullName, email, password }) => {
   const normalizedEmail = normalizeEmail(email)
@@ -84,4 +87,50 @@ export const registerUser = async ({ fullName, email, password }) => {
   }
 
   return buildSafeUser(newProfile)
+}
+
+export const loginUser = async ({ email, password }) => {
+  const normalizedEmail = normalizeEmail(email)
+
+  if (!validateEmail(normalizedEmail)) {
+    throw createHttpError(400, 'A valid email address is required')
+  }
+
+  if (typeof password !== 'string' || password.length === 0) {
+    throw createHttpError(400, 'Password is required')
+  }
+
+  const { data: profile, error: lookupError } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, password_hash, role, is_active, created_at')
+    .eq('email', normalizedEmail)
+    .maybeSingle()
+
+  if (lookupError) {
+    throw createHttpError(500, 'Unable to login')
+  }
+
+  if (!profile) {
+    throw createHttpError(401, INVALID_CREDENTIALS_MESSAGE)
+  }
+
+  if (!profile.is_active) {
+    throw createHttpError(403, 'Your account is inactive. Please contact support.')
+  }
+
+  const passwordMatches = await comparePassword(password, profile.password_hash)
+
+  if (!passwordMatches) {
+    throw createHttpError(401, INVALID_CREDENTIALS_MESSAGE)
+  }
+
+  const accessToken = generateAccessToken({
+    sub: profile.id,
+    role: profile.role,
+  })
+
+  return {
+    accessToken,
+    user: buildSafeUser(profile),
+  }
 }

@@ -40,11 +40,12 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 5D – JWT middleware and current-user endpoint complete
+Phase 6A – Frontend authentication UI and routing foundation complete
 
 ## Setup Instructions
 
 Coming in later phases.
+
 
 
 

@@ -1,4 +1,4 @@
-# AI Resume Analyzer
+﻿# AI Resume Analyzer
 
 A recruiter-level AI Resume Analyzer planned for resume upload, AI-assisted evaluation, report history, and role-based dashboards.
 
@@ -29,19 +29,20 @@ A recruiter-level AI Resume Analyzer planned for resume upload, AI-assisted eval
 
 ```text
 AI-Resume-Analyzer/
-├── client/
-├── server/
-├── docs/
-│   ├── architecture.md
-│   └── roadmap.md
-├── .gitignore
-└── README.md
+â”œâ”€â”€ client/
+â”œâ”€â”€ server/
+â”œâ”€â”€ docs/
+â”‚   â”œâ”€â”€ architecture.md
+â”‚   â””â”€â”€ roadmap.md
+â”œâ”€â”€ .gitignore
+â””â”€â”€ README.md
 ```
 
 ## Current Status
 
-Phase 4B � Express connected to Supabase
+Phase 5A – Authentication foundation complete
 
 ## Setup Instructions
 
 Coming in later phases.
+

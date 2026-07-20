@@ -40,7 +40,7 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 1 complete.
+Phase 2 complete.
 
 ## Setup Instructions
 

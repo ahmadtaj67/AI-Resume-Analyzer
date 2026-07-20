@@ -40,7 +40,7 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 4A â€“ Supabase schema prepared
+Phase 4B – Express connected to Supabase
 
 ## Setup Instructions
 

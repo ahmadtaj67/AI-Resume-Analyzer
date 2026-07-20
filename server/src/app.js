@@ -3,6 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
 import healthRoutes from './routes/health.routes.js'
+import databaseHealthRoutes from './routes/databaseHealth.routes.js'
 import notFoundMiddleware from './middleware/notFound.middleware.js'
 import errorMiddleware from './middleware/error.middleware.js'
 
@@ -24,6 +25,7 @@ if (isDevelopment) {
 }
 
 app.use('/api/health', healthRoutes)
+app.use('/api/health/database', databaseHealthRoutes)
 
 app.use(notFoundMiddleware)
 app.use(errorMiddleware)

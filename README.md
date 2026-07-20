@@ -40,9 +40,10 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 5A – Authentication foundation complete
+Phase 5B – User registration API complete
 
 ## Setup Instructions
 
 Coming in later phases.
+
 

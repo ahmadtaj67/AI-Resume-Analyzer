@@ -74,11 +74,11 @@ function ResumeAnalysisResult({ result, onClear }) {
     >
       <div className="dashboard-analysis-heading">
         <div>
-          <p className="eyebrow">Temporary analysis</p>
+          <p className="eyebrow">Saved analysis</p>
           <h3 id="resume-analysis-result-title">AI Resume Analysis</h3>
           <p>
-            This analysis is temporary and has not been saved to your report
-            history.
+            This analysis has been saved to your report history. The original
+            PDF file was not permanently stored.
           </p>
         </div>
         <button className="dashboard-secondary-action" type="button" onClick={onClear}>

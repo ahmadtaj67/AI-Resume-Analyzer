@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import DashboardHeader from '../../components/dashboard/DashboardHeader.jsx'
 import DashboardSidebar from '../../components/dashboard/DashboardSidebar.jsx'
 import MobileNavigation from '../../components/dashboard/MobileNavigation.jsx'
@@ -6,8 +6,10 @@ import OverviewCard from '../../components/dashboard/OverviewCard.jsx'
 import ProfileSummary from '../../components/dashboard/ProfileSummary.jsx'
 import QuickActions from '../../components/dashboard/QuickActions.jsx'
 import RecentReportsEmptyState from '../../components/dashboard/RecentReportsEmptyState.jsx'
+import RecentReportsList from '../../components/dashboard/RecentReportsList.jsx'
 import ResumeUploadPlaceholder from '../../components/dashboard/ResumeUploadPlaceholder.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { getDashboardSummary } from '../../services/resumeService.js'
 
 const formatRole = (role) => {
   if (typeof role !== 'string' || role.trim().length === 0) {
@@ -71,6 +73,13 @@ function DashboardPage() {
   const { logout, user } = useAuth()
   const profileRef = useRef(null)
   const mainContentRef = useRef(null)
+  const [dashboardSummary, setDashboardSummary] = useState({
+    totalReports: null,
+    latestScore: null,
+    recentReports: [],
+  })
+  const [isSummaryLoading, setIsSummaryLoading] = useState(true)
+  const [summaryError, setSummaryError] = useState('')
 
   const userName = getUserName(user)
   const userEmail = getUserEmail(user)
@@ -78,6 +87,35 @@ function DashboardPage() {
   const userInitials = getInitials(user)
   const roleLabel = formatRole(user?.role)
   const accountStatus = getAccountStatus(user)
+
+  const fetchDashboardSummary = useCallback(async () => {
+    setIsSummaryLoading(true)
+    setSummaryError('')
+
+    try {
+      const summary = await getDashboardSummary()
+      setDashboardSummary({
+        totalReports: summary?.totalReports ?? 0,
+        latestScore: summary?.latestScore ?? null,
+        recentReports: Array.isArray(summary?.recentReports)
+          ? summary.recentReports
+          : [],
+      })
+    } catch (error) {
+      setSummaryError(error.message)
+      setDashboardSummary({
+        totalReports: 0,
+        latestScore: null,
+        recentReports: [],
+      })
+    } finally {
+      setIsSummaryLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchDashboardSummary()
+  }, [fetchDashboardSummary])
 
   const focusMainContent = () => {
     mainContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -111,14 +149,23 @@ function DashboardPage() {
   const overviewCards = [
     {
       label: 'Total Reports',
-      value: '0',
-      supportingText: 'No reports generated yet',
+      value: isSummaryLoading ? 'Loading' : `${dashboardSummary.totalReports ?? 0}`,
+      supportingText:
+        !isSummaryLoading && dashboardSummary.totalReports > 0
+          ? 'Saved resume reports'
+          : 'No reports generated yet',
       tone: 'teal',
     },
     {
       label: 'Latest Score',
-      value: 'Not available',
-      supportingText: 'Analyze a resume to receive a score',
+      value:
+        isSummaryLoading || dashboardSummary.latestScore === null
+          ? 'Not available'
+          : `${dashboardSummary.latestScore}/100`,
+      supportingText:
+        dashboardSummary.latestScore === null
+          ? 'Analyze a resume to receive a score'
+          : 'Newest saved resume score',
       tone: 'blue',
     },
     {
@@ -194,7 +241,7 @@ function DashboardPage() {
           </section>
 
           <div className="dashboard-content-grid">
-            <ResumeUploadPlaceholder />
+            <ResumeUploadPlaceholder onReportSaved={fetchDashboardSummary} />
             <ProfileSummary
               accountStatus={accountStatus}
               profileRef={profileRef}
@@ -205,7 +252,22 @@ function DashboardPage() {
             />
           </div>
 
-          <RecentReportsEmptyState />
+          <div className="dashboard-summary-feedback" aria-live="polite">
+            {isSummaryLoading ? (
+              <p>Loading dashboard reports...</p>
+            ) : null}
+            {summaryError ? (
+              <p role="alert">
+                Dashboard data could not be loaded. Please refresh and try again.
+              </p>
+            ) : null}
+          </div>
+
+          {!isSummaryLoading && !summaryError && dashboardSummary.recentReports.length > 0 ? (
+            <RecentReportsList reports={dashboardSummary.recentReports} />
+          ) : (
+            <RecentReportsEmptyState />
+          )}
 
           <QuickActions onReviewProfile={focusProfileSummary} />
         </main>

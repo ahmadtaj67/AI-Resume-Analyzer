@@ -7,7 +7,7 @@ import {
   validateResumeFile,
 } from '../../utils/fileValidation.js'
 
-function ResumeUploadPlaceholder() {
+function ResumeUploadPlaceholder({ onReportSaved }) {
   const fileInputRef = useRef(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [validationError, setValidationError] = useState('')
@@ -83,7 +83,10 @@ function ResumeUploadPlaceholder() {
     try {
       const result = await analyzeResume(selectedFile)
       setAnalysisResult(result.result)
-      setSuccessMessage('Resume analysis completed. This result has not been saved.')
+      setSuccessMessage(
+        'The analysis report is saved. The original PDF file is not permanently stored.',
+      )
+      onReportSaved?.(result.result?.report)
     } catch (error) {
       setAnalysisError(error.message)
       resetInputValue()
@@ -102,8 +105,8 @@ function ResumeUploadPlaceholder() {
         <p className="eyebrow">Resume upload</p>
         <h2 id="upload-placeholder-title">Upload Your Resume</h2>
         <p>
-          Select one PDF resume for a temporary AI analysis. Report history and
-          saved scoring will be added in later phases.
+          Select one PDF resume for AI analysis. The validated report will be
+          saved to your report history.
         </p>
       </div>
 

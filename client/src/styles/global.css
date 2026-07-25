@@ -1198,6 +1198,94 @@ a {
   overflow-wrap: anywhere;
 }
 
+/* Phase 7E saved reports */
+.dashboard-summary-feedback {
+  min-height: 24px;
+}
+
+.dashboard-summary-feedback p {
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.54);
+  line-height: 1.55;
+}
+
+.dashboard-summary-feedback p[role="alert"] {
+  border: 1px solid rgba(251, 113, 133, 0.34);
+  color: #ffe4e6;
+  background: rgba(190, 18, 60, 0.14);
+}
+
+.dashboard-reports-list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-report-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.7fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(2, 6, 23, 0.26);
+}
+
+.dashboard-report-item > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.dashboard-report-item strong,
+.dashboard-report-item span,
+.dashboard-report-item dd {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-report-item strong {
+  color: #ffffff;
+}
+
+.dashboard-report-item span,
+.dashboard-report-item dt {
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.dashboard-report-item dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.dashboard-report-item dd {
+  margin-top: 4px;
+  color: #e2e8f0;
+  font-weight: 900;
+}
+
+.dashboard-report-item > p {
+  border: 1px solid rgba(45, 212, 191, 0.24);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #ccfbf1;
+  background: rgba(13, 148, 136, 0.14);
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .dashboard-primary-action {
   border: 0;
   color: #06111f;
@@ -1447,6 +1535,15 @@ a {
   .dashboard-content-grid {
     grid-template-columns: 1fr;
   }
+
+  .dashboard-report-item {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .dashboard-report-item > p {
+    justify-self: start;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1521,6 +1618,10 @@ a {
 
   .dashboard-overview-grid,
   .dashboard-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-report-item dl {
     grid-template-columns: 1fr;
   }
 

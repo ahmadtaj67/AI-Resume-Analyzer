@@ -40,7 +40,7 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 7D - Gemini Resume Analysis Foundation complete
+Phase 7E - Resume Report Persistence complete
 
 ## Phase 7A Completion Summary
 
@@ -113,6 +113,32 @@ Phase 7D - Gemini Resume Analysis Foundation complete
 - No report persistence, Supabase insert, Supabase Storage, or permanent local PDF storage added
 - Backend tests: passed for health, database health, auth, upload, extract-text, missing key, invalid key, auth failures, invalid files, oversized PDF, corrupt PDF, scanned PDF, and inactive user
 - Live Gemini success test skipped because no real Gemini key is configured in this environment
+- Frontend build result: passed
+- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
+- Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities; full `npm audit` reports one high-severity `brace-expansion` advisory
+
+## Phase 7E Completion Summary
+
+- Successful validated Gemini analysis is now persisted in the existing `resume_reports` table
+- Reports are owned by the authenticated `req.user.id`
+- Protected `GET /api/resumes/dashboard-summary` endpoint added
+- Dashboard summary returns Total Reports, Latest Score, and up to 5 Recent Reports
+- Recent reports are scoped to the logged-in user and sorted newest first
+- `original_file_name`, `overall_score`, and validated `analysis_result` are saved
+- `stored_file_url` remains null because the original PDF is not stored
+- `resume_text` remains null because full extracted text is not stored
+- AI model metadata is stored inside validated `analysis_result.metadata`
+- Frontend dashboard metrics now load from the backend summary endpoint
+- Recent Reports list added without dead detail links
+- Analyze flow saves the report in the same backend request that extracts and analyzes the resume
+- Browser never submits AI analysis JSON for persistence
+- User isolation tested with two users
+- Empty dashboard state returns `totalReports: 0`, `latestScore: null`, and `recentReports: []`
+- Database insert failure returns a safe save error without fake success
+- Gemini failure creates no report row
+- No PDF storage, Supabase Storage, report details page, full history page, report deletion, admin features, OCR, or job matching added
+- Backend tests: passed for dashboard summary, upload-only, extract-only, missing key, invalid auth, invalid files, scanned PDF, insert failure handling, two-user isolation, and mocked analyze-and-save persistence path
+- Live Gemini analyze-and-save returned a safe provider error in this environment, so no live report was inserted
 - Frontend build result: passed
 - Frontend lint result: passed with one existing AuthContext Fast Refresh warning
 - Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities; full `npm audit` reports one high-severity `brace-expansion` advisory

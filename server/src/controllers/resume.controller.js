@@ -1,6 +1,7 @@
 import { sanitizeFileName } from '../utils/resumeValidation.js'
 import { extractPdfText } from '../utils/pdfTextExtractor.js'
 import { analyzeResumeText } from '../services/resumeAnalysis.service.js'
+import { createResumeReport } from '../services/resumeReport.service.js'
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message)
@@ -75,22 +76,44 @@ export const analyzeResume = async (req, res, next) => {
       throw createHttpError(400, 'Please upload one PDF resume using the resume field.')
     }
 
+    const fileName = sanitizeFileName(req.file.originalname)
     const extractionResult = await extractPdfText(req.file.buffer)
     const analysisResult = await analyzeResumeText(extractionResult.text)
+    const extractionSummary = {
+      pageCount: extractionResult.pageCount,
+      wordCount: extractionResult.wordCount,
+      characterCount: extractionResult.characterCount,
+    }
+    const reportJson = {
+      professionalSummary: analysisResult.analysis.professionalSummary,
+      strengths: analysisResult.analysis.strengths,
+      weaknesses: analysisResult.analysis.weaknesses,
+      detectedSkills: analysisResult.analysis.detectedSkills,
+      missingSections: analysisResult.analysis.missingSections,
+      improvementSuggestions: analysisResult.analysis.improvementSuggestions,
+      atsChecks: analysisResult.analysis.atsChecks,
+      extraction: extractionSummary,
+    }
+    const savedReport = await createResumeReport({
+      userId: req.user.id,
+      fileName,
+      aiModel: analysisResult.model,
+      overallScore: analysisResult.analysis.overallScore,
+      reportJson,
+    })
 
     res.status(200).json({
       success: true,
-      message: 'Resume analyzed successfully.',
+      message: 'Resume analyzed and report saved successfully.',
       data: {
+        report: savedReport,
         file: {
-          fileName: sanitizeFileName(req.file.originalname),
+          fileName,
           mimeType: req.file.mimetype,
           size: req.file.size,
         },
         extraction: {
-          pageCount: extractionResult.pageCount,
-          wordCount: extractionResult.wordCount,
-          characterCount: extractionResult.characterCount,
+          ...extractionSummary,
           isTextTruncated: extractionResult.isTextTruncated,
         },
         analysis: analysisResult.analysis,

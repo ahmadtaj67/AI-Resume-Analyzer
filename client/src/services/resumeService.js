@@ -59,3 +59,13 @@ export const analyzeResume = async (file) => {
     throw createSafeApiError(error)
   }
 }
+
+export const getDashboardSummary = async () => {
+  try {
+    const response = await apiClient.get('/resumes/dashboard-summary')
+
+    return response.data.data
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}

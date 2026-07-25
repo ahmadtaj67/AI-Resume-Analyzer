@@ -6,7 +6,6 @@ import {
   useMemo,
   useState,
 } from 'react'
-import LoadingScreen from '../components/LoadingScreen.jsx'
 import {
   getStoredToken,
   removeStoredToken,
@@ -145,10 +144,6 @@ export function AuthProvider({ children }) {
     }),
     [authState.isAuthenticated, authState.user, isInitializing, login, logout, restoreSession],
   )
-
-  if (isInitializing) {
-    return <LoadingScreen />
-  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

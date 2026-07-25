@@ -18,6 +18,11 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = getStoredToken()
 
+  if (config.method?.toLowerCase() === 'get') {
+    config.headers['Cache-Control'] = 'no-cache'
+    config.headers.Pragma = 'no-cache'
+  }
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

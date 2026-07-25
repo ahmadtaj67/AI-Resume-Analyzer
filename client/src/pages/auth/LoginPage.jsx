@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthField from '../../components/auth/AuthField.jsx'
 import PasswordField from '../../components/auth/PasswordField.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { getSafeRedirectPath } from '../../utils/redirect.js'
 
 function LoginPage() {
   const location = useLocation()
@@ -74,7 +75,7 @@ function LoginPage() {
         },
         formValues.rememberMe,
       )
-      navigate('/dashboard', { replace: true })
+      navigate(getSafeRedirectPath(location.state?.from), { replace: true })
     } catch (error) {
       setFormMessage(error.message)
     } finally {

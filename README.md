@@ -40,7 +40,7 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 6C – Frontend authentication context and session management complete
+Phase 6D – Protected routes and authentication redirects complete
 
 ## Setup Instructions
 

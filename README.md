@@ -40,7 +40,7 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 7A – User Dashboard Foundation complete
+Phase 7B – Secure Resume Upload Foundation complete
 
 ## Phase 7A Completion Summary
 
@@ -52,6 +52,22 @@ Phase 7A – User Dashboard Foundation complete
 - Existing AuthContext logout reused
 - No Gemini AI integration added
 - Build result: passed
+
+## Phase 7B Completion Summary
+
+- Protected `POST /api/resumes/upload` endpoint added
+- Existing JWT authentication middleware reused
+- PDF-only upload validation added
+- Maximum resume file size validation added: 5 MB
+- Multer memory storage used; no permanent file storage added
+- Frontend PDF selection and validation upload UI added
+- Safe upload success and error states added
+- No PDF parsing added
+- No Gemini AI integration added
+- No report record creation or fake report data added
+- Frontend build result: passed
+- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
+- Backend endpoint tests: passed
 
 ## Setup Instructions
 

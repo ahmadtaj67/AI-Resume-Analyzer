@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import authRoutes from './routes/auth.routes.js'
 import healthRoutes from './routes/health.routes.js'
 import databaseHealthRoutes from './routes/databaseHealth.routes.js'
+import resumeRoutes from './routes/resume.routes.js'
 import notFoundMiddleware from './middleware/notFound.middleware.js'
 import errorMiddleware from './middleware/error.middleware.js'
 
@@ -28,6 +29,7 @@ if (isDevelopment) {
 app.use('/api/auth', authRoutes)
 app.use('/api/health', healthRoutes)
 app.use('/api/health/database', databaseHealthRoutes)
+app.use('/api/resumes', resumeRoutes)
 
 app.use(notFoundMiddleware)
 app.use(errorMiddleware)

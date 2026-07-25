@@ -18,6 +18,10 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
   const token = getStoredToken()
 
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
+
   if (config.method?.toLowerCase() === 'get') {
     config.headers['Cache-Control'] = 'no-cache'
     config.headers.Pragma = 'no-cache'

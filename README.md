@@ -40,11 +40,12 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 6A – Frontend authentication UI and routing foundation complete
+Phase 6B – Frontend registration and login API integration complete
 
 ## Setup Instructions
 
 Coming in later phases.
+
 
 
 

@@ -1,5 +1,6 @@
 function AuthField({
   autoComplete,
+  disabled = false,
   error,
   id,
   label,
@@ -16,6 +17,7 @@ function AuthField({
         autoComplete={autoComplete}
         aria-describedby={error ? `${id}-error` : undefined}
         aria-invalid={Boolean(error)}
+        disabled={disabled}
         id={id}
         name={name}
         onChange={onChange}

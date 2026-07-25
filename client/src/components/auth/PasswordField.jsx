@@ -1,5 +1,6 @@
 function PasswordField({
   autoComplete,
+  disabled = false,
   error,
   id,
   label,
@@ -19,6 +20,7 @@ function PasswordField({
           autoComplete={autoComplete}
           aria-describedby={error ? `${id}-error` : undefined}
           aria-invalid={Boolean(error)}
+          disabled={disabled}
           id={id}
           name={name}
           onChange={onChange}
@@ -29,6 +31,7 @@ function PasswordField({
         <button
           aria-label={toggleLabel}
           className="password-toggle"
+          disabled={disabled}
           onClick={onToggleVisibility}
           type="button"
         >

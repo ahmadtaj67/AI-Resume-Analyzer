@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import AuthField from '../../components/auth/AuthField.jsx'
 import PasswordField from '../../components/auth/PasswordField.jsx'
+import { registerUser } from '../../services/authService.js'
 
 const initialFormValues = {
   fullName: '',
@@ -12,8 +13,11 @@ const initialFormValues = {
 }
 
 function RegisterPage() {
+  const navigate = useNavigate()
   const [formValues, setFormValues] = useState(initialFormValues)
   const [errors, setErrors] = useState({})
+  const [formMessage, setFormMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -53,9 +57,41 @@ function RegisterPage() {
     return nextErrors
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    setErrors(validateForm())
+    if (isSubmitting) {
+      return
+    }
+
+    setErrors({})
+    setFormMessage('')
+
+    const validationErrors = validateForm()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await registerUser({
+        fullName: formValues.fullName.trim(),
+        email: formValues.email.trim(),
+        password: formValues.password,
+      })
+
+      navigate('/login', {
+        replace: true,
+        state: {
+          message: 'Account created successfully. Please sign in.',
+        },
+      })
+    } catch (error) {
+      setFormMessage(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -66,9 +102,16 @@ function RegisterPage() {
         <p>This screen is UI-only for now. Account creation connects later.</p>
       </div>
 
+      {formMessage ? (
+        <div className="form-alert form-alert-error" role="alert" aria-live="polite">
+          {formMessage}
+        </div>
+      ) : null}
+
       <AuthField
         autoComplete="name"
         error={errors.fullName}
+        disabled={isSubmitting}
         id="register-full-name"
         label="Full name"
         name="fullName"
@@ -80,6 +123,7 @@ function RegisterPage() {
       <AuthField
         autoComplete="email"
         error={errors.email}
+        disabled={isSubmitting}
         id="register-email"
         label="Email"
         name="email"
@@ -92,6 +136,7 @@ function RegisterPage() {
       <PasswordField
         autoComplete="new-password"
         error={errors.password}
+        disabled={isSubmitting}
         id="register-password"
         label="Password"
         name="password"
@@ -106,6 +151,7 @@ function RegisterPage() {
       <PasswordField
         autoComplete="new-password"
         error={errors.confirmPassword}
+        disabled={isSubmitting}
         id="confirm-password"
         label="Confirm password"
         name="confirmPassword"
@@ -123,6 +169,7 @@ function RegisterPage() {
         <label className="checkbox-row" htmlFor="terms">
           <input
             checked={formValues.acceptedTerms}
+            disabled={isSubmitting}
             id="terms"
             name="acceptedTerms"
             onChange={handleChange}
@@ -135,8 +182,8 @@ function RegisterPage() {
         ) : null}
       </div>
 
-      <button className="primary-button" type="submit">
-        Create account
+      <button className="primary-button" disabled={isSubmitting} type="submit">
+        {isSubmitting ? 'Creating account...' : 'Create account'}
       </button>
 
       <p className="auth-switch">

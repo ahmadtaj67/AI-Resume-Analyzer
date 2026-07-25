@@ -1,9 +1,12 @@
 import axios from 'axios'
 import { getStoredToken } from '../utils/authStorage.js'
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+const developmentApiBaseUrl = 'http://localhost:5000/api'
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || (
+  import.meta.env.DEV ? developmentApiBaseUrl : ''
+)
 
-if (!apiBaseUrl && import.meta.env.DEV) {
+if (!apiBaseUrl) {
   throw new Error('Missing frontend API configuration: VITE_API_BASE_URL')
 }
 

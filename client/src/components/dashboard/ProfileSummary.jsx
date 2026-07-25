@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 function ProfileSummary({ accountStatus, profileRef, roleLabel, userEmail, userInitials, userName }) {
   return (
     <section
@@ -36,7 +38,9 @@ function ProfileSummary({ accountStatus, profileRef, roleLabel, userEmail, userI
         </div>
       </dl>
 
-      <span className="dashboard-muted-label">Editing coming soon</span>
+      <Link className="dashboard-secondary-action" to="/profile">
+        Manage Profile
+      </Link>
     </section>
   )
 }

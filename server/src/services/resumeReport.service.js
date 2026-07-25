@@ -1,4 +1,5 @@
 import supabase from '../config/supabase.js'
+import { buildPaginationMeta } from '../utils/pagination.js'
 
 const DEFAULT_RECENT_REPORT_LIMIT = 5
 
@@ -16,6 +17,55 @@ const mapReportRow = (report) => ({
   aiModel: report.analysis_result?.metadata?.aiModel || 'Not available',
   createdAt: report.created_at,
 })
+
+const normalizeArray = (value) => (Array.isArray(value) ? value : [])
+
+const normalizeAtsChecks = (value) => {
+  const checks = value && typeof value === 'object' ? value : {}
+
+  return {
+    hasContactInformation: checks.hasContactInformation === true,
+    hasProfessionalSummary: checks.hasProfessionalSummary === true,
+    hasSkillsSection: checks.hasSkillsSection === true,
+    hasExperienceSection: checks.hasExperienceSection === true,
+    hasEducationSection: checks.hasEducationSection === true,
+    usesActionVerbs: checks.usesActionVerbs === true,
+    hasMeasurableAchievements: checks.hasMeasurableAchievements === true,
+    formattingQuality:
+      typeof checks.formattingQuality === 'string' ? checks.formattingQuality : 'poor',
+  }
+}
+
+const mapReportDetailsRow = (report) => {
+  const result = report.analysis_result || {}
+
+  return {
+    id: report.id,
+    fileName: report.original_file_name,
+    overallScore: report.overall_score,
+    aiModel: result.metadata?.aiModel || 'Not available',
+    createdAt: report.created_at,
+    updatedAt: report.updated_at,
+    extraction: {
+      pageCount: result.extraction?.pageCount ?? null,
+      wordCount: result.extraction?.wordCount ?? 0,
+      characterCount: result.extraction?.characterCount ?? 0,
+    },
+    analysis: {
+      overallScore: report.overall_score,
+      professionalSummary:
+        typeof result.professionalSummary === 'string'
+          ? result.professionalSummary
+          : '',
+      strengths: normalizeArray(result.strengths),
+      weaknesses: normalizeArray(result.weaknesses),
+      detectedSkills: normalizeArray(result.detectedSkills),
+      missingSections: normalizeArray(result.missingSections),
+      improvementSuggestions: normalizeArray(result.improvementSuggestions),
+      atsChecks: normalizeAtsChecks(result.atsChecks),
+    },
+  }
+}
 
 export const createResumeReport = async ({
   userId,
@@ -88,3 +138,61 @@ export const getUserReportSummary = async (userId) => {
   }
 }
 
+export const getPaginatedUserReports = async ({ userId, page, limit, from, to }) => {
+  const { count, error: countError } = await supabase
+    .from('resume_reports')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+
+  if (countError) {
+    throw createReportError('Your report history could not be loaded. Please try again.')
+  }
+
+  const totalItems = count || 0
+
+  if (from >= totalItems) {
+    return {
+      reports: [],
+      pagination: buildPaginationMeta({
+        page,
+        limit,
+        totalItems,
+      }),
+    }
+  }
+
+  const { data, error } = await supabase
+    .from('resume_reports')
+    .select('id, original_file_name, overall_score, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .range(from, to)
+
+  if (error) {
+    throw createReportError('Your report history could not be loaded. Please try again.')
+  }
+
+  return {
+    reports: data.map(mapReportRow),
+    pagination: buildPaginationMeta({
+      page,
+      limit,
+      totalItems,
+    }),
+  }
+}
+
+export const getUserReportById = async ({ userId, reportId }) => {
+  const { data, error } = await supabase
+    .from('resume_reports')
+    .select('id, original_file_name, overall_score, analysis_result, created_at, updated_at')
+    .eq('id', reportId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (error) {
+    throw createReportError('The report could not be loaded. Please try again.')
+  }
+
+  return data ? mapReportDetailsRow(data) : null
+}

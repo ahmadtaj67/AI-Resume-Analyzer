@@ -69,3 +69,28 @@ export const getDashboardSummary = async () => {
     throw createSafeApiError(error)
   }
 }
+
+export const getReports = async ({ page = 1, limit = 10 } = {}) => {
+  try {
+    const response = await apiClient.get('/resumes/reports', {
+      params: {
+        page,
+        limit,
+      },
+    })
+
+    return response.data.data
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}
+
+export const getReportById = async (reportId) => {
+  try {
+    const response = await apiClient.get(`/resumes/reports/${encodeURIComponent(reportId)}`)
+
+    return response.data.data?.report
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}

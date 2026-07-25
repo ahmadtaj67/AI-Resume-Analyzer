@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import DashboardHeader from '../../components/dashboard/DashboardHeader.jsx'
 import DashboardSidebar from '../../components/dashboard/DashboardSidebar.jsx'
 import MobileNavigation from '../../components/dashboard/MobileNavigation.jsx'
@@ -71,6 +72,7 @@ const getAccountStatus = (user) => {
 
 function DashboardPage() {
   const { logout, user } = useAuth()
+  const location = useLocation()
   const profileRef = useRef(null)
   const mainContentRef = useRef(null)
   const [dashboardSummary, setDashboardSummary] = useState({
@@ -127,22 +129,33 @@ function DashboardPage() {
   }
 
   const navigationItems = [
+    ...(user?.role === 'admin'
+      ? [
+          {
+            label: 'Admin Dashboard',
+            href: '/admin',
+            isActive: location.pathname === '/admin',
+          },
+        ]
+      : []),
     {
-      label: 'Overview',
-      isActive: true,
-      onClick: focusMainContent,
+      label: 'Dashboard',
+      href: '/dashboard',
+      isActive: location.pathname === '/dashboard',
+    },
+    {
+      label: 'Reports',
+      href: '/reports',
+      isActive: location.pathname.startsWith('/reports'),
     },
     {
       label: 'Analyze Resume',
-      isSoon: true,
-    },
-    {
-      label: 'My Reports',
-      isSoon: true,
+      onClick: focusMainContent,
     },
     {
       label: 'Profile',
-      isSoon: true,
+      href: '/profile',
+      isActive: location.pathname === '/profile',
     },
   ]
 
@@ -265,9 +278,11 @@ function DashboardPage() {
 
           {!isSummaryLoading && !summaryError && dashboardSummary.recentReports.length > 0 ? (
             <RecentReportsList reports={dashboardSummary.recentReports} />
-          ) : (
+          ) : null}
+
+          {!isSummaryLoading && !summaryError && dashboardSummary.recentReports.length === 0 ? (
             <RecentReportsEmptyState />
-          )}
+          ) : null}
 
           <QuickActions onReviewProfile={focusProfileSummary} />
         </main>

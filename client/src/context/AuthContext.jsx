@@ -133,6 +133,17 @@ export function AuthProvider({ children }) {
     resetAuthState()
   }, [resetAuthState])
 
+  const updateUser = useCallback((user) => {
+    if (!user) {
+      return
+    }
+
+    setAuthState({
+      user,
+      isAuthenticated: true,
+    })
+  }, [])
+
   const value = useMemo(
     () => ({
       user: authState.user,
@@ -141,8 +152,17 @@ export function AuthProvider({ children }) {
       login,
       logout,
       restoreSession,
+      updateUser,
     }),
-    [authState.isAuthenticated, authState.user, isInitializing, login, logout, restoreSession],
+    [
+      authState.isAuthenticated,
+      authState.user,
+      isInitializing,
+      login,
+      logout,
+      restoreSession,
+      updateUser,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

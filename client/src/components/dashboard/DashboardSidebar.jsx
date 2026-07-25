@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom'
+
 function DashboardSidebar({ navigationItems, onLogout, userEmail, userInitials, userName }) {
   return (
     <aside className="dashboard-sidebar" aria-label="Dashboard sidebar">
       <div>
-        <a className="dashboard-sidebar-brand" href="/dashboard" aria-label="AI Resume Analyzer dashboard">
+        <Link className="dashboard-sidebar-brand" to="/dashboard" aria-label="AI Resume Analyzer dashboard">
           <span className="dashboard-brand-mark" aria-hidden="true">
             AI
           </span>
@@ -10,21 +12,32 @@ function DashboardSidebar({ navigationItems, onLogout, userEmail, userInitials, 
             <strong>AI Resume Analyzer</strong>
             <small>Smart Career Insights</small>
           </span>
-        </a>
+        </Link>
 
         <nav className="dashboard-sidebar-nav" aria-label="Dashboard navigation">
           {navigationItems.map((item) => (
-            <button
-              aria-current={item.isActive ? 'page' : undefined}
-              className={item.isActive ? 'dashboard-nav-item is-active' : 'dashboard-nav-item'}
-              disabled={item.isSoon}
-              key={item.label}
-              onClick={item.onClick}
-              type="button"
-            >
-              <span>{item.label}</span>
-              {item.isSoon ? <span className="dashboard-soon-badge">Soon</span> : null}
-            </button>
+            item.href ? (
+              <Link
+                aria-current={item.isActive ? 'page' : undefined}
+                className={item.isActive ? 'dashboard-nav-item is-active' : 'dashboard-nav-item'}
+                key={item.label}
+                to={item.href}
+              >
+                <span>{item.label}</span>
+              </Link>
+            ) : (
+              <button
+                aria-current={item.isActive ? 'page' : undefined}
+                className={item.isActive ? 'dashboard-nav-item is-active' : 'dashboard-nav-item'}
+                disabled={item.isSoon}
+                key={item.label}
+                onClick={item.onClick}
+                type="button"
+              >
+                <span>{item.label}</span>
+                {item.isSoon ? <span className="dashboard-soon-badge">Soon</span> : null}
+              </button>
+            )
           ))}
         </nav>
       </div>

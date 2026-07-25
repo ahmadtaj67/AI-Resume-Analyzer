@@ -1,4 +1,5 @@
 import { useEffect, useId, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 function MobileNavigation({ navigationItems, onLogout, userInitials }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -22,7 +23,7 @@ function MobileNavigation({ navigationItems, onLogout, userInitials }) {
     }
   }, [isOpen])
 
-  const handleOverviewClick = (onClick) => {
+  const handleItemClick = (onClick) => {
     onClick?.()
     setIsOpen(false)
   }
@@ -34,12 +35,12 @@ function MobileNavigation({ navigationItems, onLogout, userInitials }) {
 
   return (
     <header className="dashboard-mobile-header">
-      <a className="dashboard-mobile-brand" href="/dashboard" aria-label="AI Resume Analyzer dashboard">
+      <Link className="dashboard-mobile-brand" to="/dashboard" aria-label="AI Resume Analyzer dashboard">
         <span className="dashboard-brand-mark" aria-hidden="true">
           AI
         </span>
         <span>AI Resume Analyzer</span>
-      </a>
+      </Link>
 
       <div className="dashboard-mobile-actions">
         <span className="dashboard-avatar dashboard-avatar-small" aria-label="Current user">
@@ -60,17 +61,29 @@ function MobileNavigation({ navigationItems, onLogout, userInitials }) {
       {isOpen ? (
         <nav className="dashboard-mobile-menu" id={menuId} aria-label="Mobile dashboard navigation">
           {navigationItems.map((item) => (
-            <button
-              aria-current={item.isActive ? 'page' : undefined}
-              className={item.isActive ? 'dashboard-nav-item is-active' : 'dashboard-nav-item'}
-              disabled={item.isSoon}
-              key={item.label}
-              onClick={() => handleOverviewClick(item.onClick)}
-              type="button"
-            >
-              <span>{item.label}</span>
-              {item.isSoon ? <span className="dashboard-soon-badge">Soon</span> : null}
-            </button>
+            item.href ? (
+              <Link
+                aria-current={item.isActive ? 'page' : undefined}
+                className={item.isActive ? 'dashboard-nav-item is-active' : 'dashboard-nav-item'}
+                key={item.label}
+                onClick={() => setIsOpen(false)}
+                to={item.href}
+              >
+                <span>{item.label}</span>
+              </Link>
+            ) : (
+              <button
+                aria-current={item.isActive ? 'page' : undefined}
+                className={item.isActive ? 'dashboard-nav-item is-active' : 'dashboard-nav-item'}
+                disabled={item.isSoon}
+                key={item.label}
+                onClick={() => handleItemClick(item.onClick)}
+                type="button"
+              >
+                <span>{item.label}</span>
+                {item.isSoon ? <span className="dashboard-soon-badge">Soon</span> : null}
+              </button>
+            )
           ))}
           <button className="dashboard-logout-button" type="button" onClick={handleLogout}>
             Logout

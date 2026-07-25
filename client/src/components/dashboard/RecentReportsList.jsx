@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { formatDisplayDate } from '../../utils/dateFormat.js'
 
 function RecentReportsList({ reports }) {
@@ -7,6 +8,9 @@ function RecentReportsList({ reports }) {
         <p className="eyebrow">Reports</p>
         <h2 id="recent-reports-title">Recent Reports</h2>
         <p>Your newest saved resume analysis reports appear here.</p>
+        <Link className="dashboard-inline-link" to="/reports">
+          View All Reports
+        </Link>
       </div>
 
       <ul className="dashboard-reports-list" aria-label="Recent saved reports">
@@ -27,7 +31,13 @@ function RecentReportsList({ reports }) {
                   <dd>{report.aiModel}</dd>
                 </div>
               </dl>
-              <p>Saved report</p>
+              {report.id ? (
+                <Link className="dashboard-secondary-action" to={`/reports/${report.id}`}>
+                  View Report
+                </Link>
+              ) : (
+                <p>Saved report</p>
+              )}
             </article>
           </li>
         ))}

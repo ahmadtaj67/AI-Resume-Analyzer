@@ -1,9 +1,15 @@
+import { useAuth } from '../../context/AuthContext.jsx'
+
 function DashboardPage() {
+  const { user } = useAuth()
+  const displayName = user?.full_name || user?.email
+
   return (
     <section className="dashboard-page" aria-labelledby="dashboard-title">
       <div className="dashboard-hero">
         <p className="eyebrow">Development preview</p>
         <h1 id="dashboard-title">Welcome to AI Resume Analyzer</h1>
+        {displayName ? <h2>Welcome, {displayName}</h2> : null}
         <p>
           This dashboard will later contain resume analysis features, report
           history, and guided recruiter workflows.

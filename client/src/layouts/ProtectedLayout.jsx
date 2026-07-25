@@ -1,8 +1,14 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function ProtectedLayout() {
-  const handleLogoutPlaceholder = () => {
-    window.alert('Logout will be connected in a future phase.')
+  const navigate = useNavigate()
+  const { logout, user } = useAuth()
+  const displayName = user?.full_name || user?.email || 'Development user'
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -15,7 +21,8 @@ function ProtectedLayout() {
           <span>AI Resume Analyzer</span>
         </a>
         <nav className="app-nav" aria-label="Application navigation">
-          <button className="ghost-button" type="button" onClick={handleLogoutPlaceholder}>
+          <span className="current-user">Signed in as {displayName}</span>
+          <button className="ghost-button" type="button" onClick={handleLogout}>
             Logout
           </button>
         </nav>

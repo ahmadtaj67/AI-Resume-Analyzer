@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthField from '../../components/auth/AuthField.jsx'
 import PasswordField from '../../components/auth/PasswordField.jsx'
-import { loginUser } from '../../services/authService.js'
+import { useAuth } from '../../context/AuthContext.jsx'
 
 function LoginPage() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [formValues, setFormValues] = useState({
     email: '',
     password: '',
@@ -66,18 +67,14 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const result = await loginUser({
-        email: formValues.email.trim(),
-        password: formValues.password,
-      })
-
-      if (!result.accessToken || !result.user) {
-        throw new Error('Something went wrong. Please try again.')
-      }
-
-      setSuccessMessage(
-        'Login API verified successfully. Session handling will be added in the next phase.',
+      await login(
+        {
+          email: formValues.email.trim(),
+          password: formValues.password,
+        },
+        formValues.rememberMe,
       )
+      navigate('/dashboard', { replace: true })
     } catch (error) {
       setFormMessage(error.message)
     } finally {
@@ -90,7 +87,7 @@ function LoginPage() {
       <div className="form-heading">
         <p className="eyebrow">Welcome back</p>
         <h2>Sign in to your workspace</h2>
-        <p>Authentication wiring will be connected to the API in a later phase.</p>
+        <p>Use your account credentials to verify your session.</p>
       </div>
 
       {successMessage ? (

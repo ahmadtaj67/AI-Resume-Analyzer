@@ -45,3 +45,13 @@ export const loginUser = async ({ email, password }) => {
     throw createSafeApiError(error)
   }
 }
+
+export const getCurrentUser = async () => {
+  try {
+    const response = await apiClient.get('/auth/me')
+
+    return response.data.data?.user
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}

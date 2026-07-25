@@ -1,5 +1,6 @@
 import { sanitizeFileName } from '../utils/resumeValidation.js'
 import { extractPdfText } from '../utils/pdfTextExtractor.js'
+import { analyzeResumeText } from '../services/resumeAnalysis.service.js'
 
 const createHttpError = (statusCode, message) => {
   const error = new Error(message)
@@ -57,6 +58,47 @@ export const extractResumeText = async (req, res, next) => {
         textPreview: extractionResult.preview,
         isPreviewTruncated: extractionResult.isPreviewTruncated,
         isTextReadable: extractionResult.isTextReadable,
+      },
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const analyzeResume = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw createHttpError(401, 'Authentication required')
+    }
+
+    if (!req.file) {
+      throw createHttpError(400, 'Please upload one PDF resume using the resume field.')
+    }
+
+    const extractionResult = await extractPdfText(req.file.buffer)
+    const analysisResult = await analyzeResumeText(extractionResult.text)
+
+    res.status(200).json({
+      success: true,
+      message: 'Resume analyzed successfully.',
+      data: {
+        file: {
+          fileName: sanitizeFileName(req.file.originalname),
+          mimeType: req.file.mimetype,
+          size: req.file.size,
+        },
+        extraction: {
+          pageCount: extractionResult.pageCount,
+          wordCount: extractionResult.wordCount,
+          characterCount: extractionResult.characterCount,
+          isTextTruncated: extractionResult.isTextTruncated,
+        },
+        analysis: analysisResult.analysis,
+        metadata: {
+          model: analysisResult.model,
+          inputCharacterCount: analysisResult.inputCharacterCount,
+          isInputTruncated: analysisResult.isInputTruncated,
+        },
       },
     })
   } catch (error) {

@@ -43,3 +43,19 @@ export const extractResumeText = async (file) => {
     throw createSafeApiError(error)
   }
 }
+
+export const analyzeResume = async (file) => {
+  try {
+    const formData = new FormData()
+    formData.append('resume', file)
+
+    const response = await apiClient.post('/resumes/analyze', formData)
+
+    return {
+      message: response.data.message,
+      result: response.data.data,
+    }
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}

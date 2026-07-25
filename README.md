@@ -40,7 +40,7 @@ AI-Resume-Analyzer/
 
 ## Current Status
 
-Phase 7C - PDF Text Extraction Foundation complete
+Phase 7D - Gemini Resume Analysis Foundation complete
 
 ## Phase 7A Completion Summary
 
@@ -89,6 +89,33 @@ Phase 7C - PDF Text Extraction Foundation complete
 - Frontend build result: passed
 - Frontend lint result: passed with one existing AuthContext Fast Refresh warning
 - Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities
+
+## Phase 7D Completion Summary
+
+- Official `@google/genai` SDK added for backend-only Gemini integration
+- Configurable `GEMINI_MODEL` added with default `gemini-2.5-flash`
+- Protected `POST /api/resumes/analyze` endpoint added
+- Existing JWT authentication middleware reused
+- Existing secure Multer PDF validation reused
+- Existing PDF text extraction utility reused before AI analysis
+- Gemini API key remains backend-only; no frontend Gemini key or browser Gemini call added
+- One structured JSON Gemini request is used for analysis
+- Server-side validation normalizes and checks every AI field before responding
+- Prompt-injection precautions treat resume text as untrusted data
+- Temporary analysis includes resume quality score, professional summary, strengths, weaknesses, detected skills, missing sections, suggestions, and ATS checks
+- Frontend analysis result UI added with temporary-result notice and score disclaimer
+- Dashboard metrics remain truthful: no report count update, no latest score update, and no recent report insertion
+- Missing `GEMINI_API_KEY` returns safe 503 from analysis endpoint while health/auth continue working
+- Invalid Gemini key returns a safe provider error
+- No OCR added
+- No job matching added
+- No protected-trait inference or hiring decision added
+- No report persistence, Supabase insert, Supabase Storage, or permanent local PDF storage added
+- Backend tests: passed for health, database health, auth, upload, extract-text, missing key, invalid key, auth failures, invalid files, oversized PDF, corrupt PDF, scanned PDF, and inactive user
+- Live Gemini success test skipped because no real Gemini key is configured in this environment
+- Frontend build result: passed
+- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
+- Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities; full `npm audit` reports one high-severity `brace-expansion` advisory
 
 ## Setup Instructions
 

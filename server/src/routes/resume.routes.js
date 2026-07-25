@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import {
+  analyzeResume,
   extractResumeText,
   validateResumeUpload,
 } from '../controllers/resume.controller.js'
@@ -10,5 +11,6 @@ const router = Router()
 
 router.post('/upload', authenticate, uploadSingleResume, validateResumeUpload)
 router.post('/extract-text', authenticate, uploadSingleResume, extractResumeText)
+router.post('/analyze', authenticate, uploadSingleResume, analyzeResume)
 
 export default router

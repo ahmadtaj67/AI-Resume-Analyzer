@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
-import ResumeTextPreview from './ResumeTextPreview.jsx'
-import { extractResumeText } from '../../services/resumeService.js'
+import ResumeAnalysisResult from './ResumeAnalysisResult.jsx'
+import { analyzeResume } from '../../services/resumeService.js'
 import {
   formatFileSize,
   resumeFileRules,
@@ -11,10 +11,10 @@ function ResumeUploadPlaceholder() {
   const fileInputRef = useRef(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [validationError, setValidationError] = useState('')
-  const [extractionError, setExtractionError] = useState('')
-  const [extractionResult, setExtractionResult] = useState(null)
+  const [analysisError, setAnalysisError] = useState('')
+  const [analysisResult, setAnalysisResult] = useState(null)
   const [successMessage, setSuccessMessage] = useState('')
-  const [isExtracting, setIsExtracting] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
 
   const resetInputValue = () => {
     if (fileInputRef.current) {
@@ -24,8 +24,8 @@ function ResumeUploadPlaceholder() {
 
   const handleFileSelection = (file) => {
     setSuccessMessage('')
-    setExtractionError('')
-    setExtractionResult(null)
+    setAnalysisError('')
+    setAnalysisResult(null)
 
     const validationResult = validateResumeFile(file)
 
@@ -51,61 +51,59 @@ function ResumeUploadPlaceholder() {
   const handleRemoveFile = () => {
     setSelectedFile(null)
     setValidationError('')
-    setExtractionError('')
-    setExtractionResult(null)
+    setAnalysisError('')
+    setAnalysisResult(null)
     setSuccessMessage('')
     resetInputValue()
   }
 
   const handleClearResult = () => {
-    setExtractionResult(null)
+    setAnalysisResult(null)
     setSuccessMessage('')
-    setExtractionError('')
+    setAnalysisError('')
   }
 
-  const handleExtractText = async () => {
+  const handleAnalyzeResume = async () => {
     const validationResult = validateResumeFile(selectedFile)
 
     if (!validationResult.isValid) {
       setValidationError(validationResult.error)
-      setExtractionError('')
+      setAnalysisError('')
       setSuccessMessage('')
       resetInputValue()
       return
     }
 
-    setIsExtracting(true)
+    setIsAnalyzing(true)
     setValidationError('')
-    setExtractionError('')
-    setExtractionResult(null)
+    setAnalysisError('')
+    setAnalysisResult(null)
     setSuccessMessage('')
 
     try {
-      const result = await extractResumeText(selectedFile)
-      setExtractionResult(result.extraction)
-      setSuccessMessage(
-        'Readable text was extracted successfully. Resume analysis will be added in a later phase.',
-      )
+      const result = await analyzeResume(selectedFile)
+      setAnalysisResult(result.result)
+      setSuccessMessage('Resume analysis completed. This result has not been saved.')
     } catch (error) {
-      setExtractionError(error.message)
+      setAnalysisError(error.message)
       resetInputValue()
     } finally {
-      setIsExtracting(false)
+      setIsAnalyzing(false)
     }
   }
 
   return (
     <section
       className="dashboard-panel dashboard-upload-panel"
-      aria-busy={isExtracting}
+      aria-busy={isAnalyzing}
       aria-labelledby="upload-placeholder-title"
     >
       <div className="dashboard-section-heading">
         <p className="eyebrow">Resume upload</p>
         <h2 id="upload-placeholder-title">Upload Your Resume</h2>
         <p>
-          Select one PDF resume to extract readable text. Analysis, scoring,
-          and report generation will be added in later phases.
+          Select one PDF resume for a temporary AI analysis. Report history and
+          saved scoring will be added in later phases.
         </p>
       </div>
 
@@ -127,7 +125,7 @@ function ResumeUploadPlaceholder() {
         />
         <button
           className="dashboard-secondary-action"
-          disabled={isExtracting}
+          disabled={isAnalyzing}
           onClick={handleSelectClick}
           type="button"
         >
@@ -143,7 +141,7 @@ function ResumeUploadPlaceholder() {
           </div>
           <button
             className="dashboard-secondary-action"
-            disabled={isExtracting}
+            disabled={isAnalyzing}
             onClick={handleRemoveFile}
             type="button"
           >
@@ -155,11 +153,11 @@ function ResumeUploadPlaceholder() {
       <div className="dashboard-upload-actions">
         <button
           className="dashboard-primary-action"
-          disabled={!selectedFile || isExtracting}
-          onClick={handleExtractText}
+          disabled={!selectedFile || isAnalyzing}
+          onClick={handleAnalyzeResume}
           type="button"
         >
-          {isExtracting ? 'Extracting Text...' : 'Extract Resume Text'}
+          {isAnalyzing ? 'Analyzing Resume...' : 'Analyze Resume'}
         </button>
       </div>
 
@@ -172,18 +170,18 @@ function ResumeUploadPlaceholder() {
             {validationError}
           </p>
         ) : null}
-        {extractionError ? (
+        {analysisError ? (
           <p className="dashboard-upload-error" role="alert">
-            {extractionError}
-            {extractionError.toLowerCase().includes('no readable text') ? (
+            {analysisError}
+            {analysisError.toLowerCase().includes('no readable text') ? (
               <span> Please upload a PDF that contains selectable text.</span>
             ) : null}
           </p>
         ) : null}
       </div>
 
-      <ResumeTextPreview
-        extractionResult={extractionResult}
+      <ResumeAnalysisResult
+        result={analysisResult}
         onClear={handleClearResult}
       />
     </section>

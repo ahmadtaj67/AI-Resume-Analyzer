@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { uploadResume } from '../../services/resumeService.js'
+import ResumeTextPreview from './ResumeTextPreview.jsx'
+import { extractResumeText } from '../../services/resumeService.js'
 import {
   formatFileSize,
   resumeFileRules,
@@ -9,9 +10,11 @@ import {
 function ResumeUploadPlaceholder() {
   const fileInputRef = useRef(null)
   const [selectedFile, setSelectedFile] = useState(null)
-  const [errorMessage, setErrorMessage] = useState('')
+  const [validationError, setValidationError] = useState('')
+  const [extractionError, setExtractionError] = useState('')
+  const [extractionResult, setExtractionResult] = useState(null)
   const [successMessage, setSuccessMessage] = useState('')
-  const [isUploading, setIsUploading] = useState(false)
+  const [isExtracting, setIsExtracting] = useState(false)
 
   const resetInputValue = () => {
     if (fileInputRef.current) {
@@ -21,18 +24,20 @@ function ResumeUploadPlaceholder() {
 
   const handleFileSelection = (file) => {
     setSuccessMessage('')
+    setExtractionError('')
+    setExtractionResult(null)
 
     const validationResult = validateResumeFile(file)
 
     if (!validationResult.isValid) {
       setSelectedFile(null)
-      setErrorMessage(validationResult.error)
+      setValidationError(validationResult.error)
       resetInputValue()
       return
     }
 
     setSelectedFile(file)
-    setErrorMessage('')
+    setValidationError('')
   }
 
   const handleInputChange = (event) => {
@@ -45,50 +50,62 @@ function ResumeUploadPlaceholder() {
 
   const handleRemoveFile = () => {
     setSelectedFile(null)
-    setErrorMessage('')
+    setValidationError('')
+    setExtractionError('')
+    setExtractionResult(null)
     setSuccessMessage('')
     resetInputValue()
   }
 
-  const handleUpload = async () => {
+  const handleClearResult = () => {
+    setExtractionResult(null)
+    setSuccessMessage('')
+    setExtractionError('')
+  }
+
+  const handleExtractText = async () => {
     const validationResult = validateResumeFile(selectedFile)
 
     if (!validationResult.isValid) {
-      setErrorMessage(validationResult.error)
+      setValidationError(validationResult.error)
+      setExtractionError('')
       setSuccessMessage('')
       resetInputValue()
       return
     }
 
-    setIsUploading(true)
-    setErrorMessage('')
+    setIsExtracting(true)
+    setValidationError('')
+    setExtractionError('')
+    setExtractionResult(null)
     setSuccessMessage('')
 
     try {
-      await uploadResume(selectedFile)
+      const result = await extractResumeText(selectedFile)
+      setExtractionResult(result.extraction)
       setSuccessMessage(
-        'Your PDF was received and validated successfully. Resume analysis will be added in a later phase.',
+        'Readable text was extracted successfully. Resume analysis will be added in a later phase.',
       )
     } catch (error) {
-      setErrorMessage(error.message)
+      setExtractionError(error.message)
       resetInputValue()
     } finally {
-      setIsUploading(false)
+      setIsExtracting(false)
     }
   }
 
   return (
     <section
       className="dashboard-panel dashboard-upload-panel"
-      aria-busy={isUploading}
+      aria-busy={isExtracting}
       aria-labelledby="upload-placeholder-title"
     >
       <div className="dashboard-section-heading">
         <p className="eyebrow">Resume upload</p>
         <h2 id="upload-placeholder-title">Upload Your Resume</h2>
         <p>
-          Select one PDF resume to confirm secure upload validation. Analysis,
-          scoring, and report generation will be added in later phases.
+          Select one PDF resume to extract readable text. Analysis, scoring,
+          and report generation will be added in later phases.
         </p>
       </div>
 
@@ -97,7 +114,7 @@ function ResumeUploadPlaceholder() {
         <strong>Choose one PDF resume</strong>
         <p>
           PDF only. Maximum size: {resumeFileRules.maxSizeMb} MB. The file is
-          validated only and is not permanently stored.
+          parsed in memory only and is not permanently stored.
         </p>
         <input
           aria-label="Select a PDF resume file"
@@ -110,7 +127,7 @@ function ResumeUploadPlaceholder() {
         />
         <button
           className="dashboard-secondary-action"
-          disabled={isUploading}
+          disabled={isExtracting}
           onClick={handleSelectClick}
           type="button"
         >
@@ -126,7 +143,7 @@ function ResumeUploadPlaceholder() {
           </div>
           <button
             className="dashboard-secondary-action"
-            disabled={isUploading}
+            disabled={isExtracting}
             onClick={handleRemoveFile}
             type="button"
           >
@@ -138,11 +155,11 @@ function ResumeUploadPlaceholder() {
       <div className="dashboard-upload-actions">
         <button
           className="dashboard-primary-action"
-          disabled={!selectedFile || isUploading}
-          onClick={handleUpload}
+          disabled={!selectedFile || isExtracting}
+          onClick={handleExtractText}
           type="button"
         >
-          {isUploading ? 'Uploading...' : 'Validate Resume PDF'}
+          {isExtracting ? 'Extracting Text...' : 'Extract Resume Text'}
         </button>
       </div>
 
@@ -150,12 +167,25 @@ function ResumeUploadPlaceholder() {
         {successMessage ? (
           <p className="dashboard-upload-success">{successMessage}</p>
         ) : null}
-        {errorMessage ? (
+        {validationError ? (
           <p className="dashboard-upload-error" role="alert">
-            {errorMessage}
+            {validationError}
+          </p>
+        ) : null}
+        {extractionError ? (
+          <p className="dashboard-upload-error" role="alert">
+            {extractionError}
+            {extractionError.toLowerCase().includes('no readable text') ? (
+              <span> Please upload a PDF that contains selectable text.</span>
+            ) : null}
           </p>
         ) : null}
       </div>
+
+      <ResumeTextPreview
+        extractionResult={extractionResult}
+        onClear={handleClearResult}
+      />
     </section>
   )
 }

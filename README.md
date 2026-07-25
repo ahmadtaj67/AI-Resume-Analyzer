@@ -29,18 +29,18 @@ A recruiter-level AI Resume Analyzer planned for resume upload, AI-assisted eval
 
 ```text
 AI-Resume-Analyzer/
-â”œâ”€â”€ client/
-â”œâ”€â”€ server/
-â”œâ”€â”€ docs/
-â”‚   â”œâ”€â”€ architecture.md
-â”‚   â””â”€â”€ roadmap.md
-â”œâ”€â”€ .gitignore
-â””â”€â”€ README.md
+|-- client/
+|-- server/
+|-- docs/
+|   |-- architecture.md
+|   `-- roadmap.md
+|-- .gitignore
+`-- README.md
 ```
 
 ## Current Status
 
-Phase 7B – Secure Resume Upload Foundation complete
+Phase 7C - PDF Text Extraction Foundation complete
 
 ## Phase 7A Completion Summary
 
@@ -68,6 +68,27 @@ Phase 7B – Secure Resume Upload Foundation complete
 - Frontend build result: passed
 - Frontend lint result: passed with one existing AuthContext Fast Refresh warning
 - Backend endpoint tests: passed
+
+## Phase 7C Completion Summary
+
+- Protected `POST /api/resumes/extract-text` endpoint added
+- Existing JWT authentication middleware reused
+- Existing Multer PDF validation and memory storage reused
+- PDF text is parsed from the uploaded buffer in memory
+- Extracted text is cleaned, trimmed, and limited before returning a preview
+- Page count, word count, and character count returned when extraction succeeds
+- Scanned, image-only, empty, corrupted, oversized, and encrypted PDFs return safe JSON errors
+- No OCR added
+- No Gemini AI integration added
+- No ATS score calculated
+- No report record created
+- No Supabase Storage or permanent local file storage added
+- Backend tests: passed for health, database health, auth, upload validation, extraction success, and extraction failure cases
+- Frontend dev server: launched successfully
+- Frontend responsive check: passed at 1440px, 1024px, 768px, 430px, 375px, and 320px with no horizontal overflow
+- Frontend build result: passed
+- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
+- Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities
 
 ## Setup Instructions
 

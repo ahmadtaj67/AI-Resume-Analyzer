@@ -27,3 +27,19 @@ export const uploadResume = async (file) => {
     throw createSafeApiError(error)
   }
 }
+
+export const extractResumeText = async (file) => {
+  try {
+    const formData = new FormData()
+    formData.append('resume', file)
+
+    const response = await apiClient.post('/resumes/extract-text', formData)
+
+    return {
+      message: response.data.message,
+      extraction: response.data.data,
+    }
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}

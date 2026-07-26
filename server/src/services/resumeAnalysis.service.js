@@ -53,6 +53,21 @@ const normalizeProviderError = (error) => {
   return createAnalysisError(503, 'AI analysis is temporarily unavailable. Please try again.')
 }
 
+const logGeminiAnalysisError = (error) => {
+  console.error('Gemini resume analysis failed', {
+    message: error?.message,
+    stack: error?.stack,
+    status: error?.status,
+    statusCode: error?.statusCode,
+    code: error?.code,
+    response: error?.response,
+    responseData: error?.response?.data,
+    responseBody: error?.response?.body,
+    details: error?.details,
+    cause: error?.cause,
+  })
+}
+
 const getResponseText = (response) => {
   if (typeof response?.text === 'string') {
     return response.text
@@ -85,7 +100,6 @@ export const analyzeResumeText = async (resumeText) => {
         responseMimeType: 'application/json',
         responseSchema: resumeAnalysisResponseSchema,
         maxOutputTokens: getGeminiMaxOutputTokens(),
-        temperature: 0.2,
       },
     })
 
@@ -103,7 +117,7 @@ export const analyzeResumeText = async (resumeText) => {
       throw error
     }
 
+    logGeminiAnalysisError(error)
     throw normalizeProviderError(error)
   }
 }
-

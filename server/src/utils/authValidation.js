@@ -19,12 +19,7 @@ export const validatePassword = (password) => {
     return false
   }
 
-  const hasMinimumLength = password.length >= 8
-  const hasUppercase = /[A-Z]/.test(password)
-  const hasLowercase = /[a-z]/.test(password)
-  const hasNumber = /\d/.test(password)
-
-  return hasMinimumLength && hasUppercase && hasLowercase && hasNumber
+  return password.length >= 6
 }
 
 export const validateFullName = (fullName) => {

@@ -1,6 +1,6 @@
 import { GoogleGenAI } from '@google/genai'
 
-const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash'
+const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash'
 const DEFAULT_MAX_OUTPUT_TOKENS = 4096
 const DEFAULT_MAX_AI_RESUME_TEXT_CHARACTERS = 30000
 
@@ -50,4 +50,3 @@ export const getGeminiClient = () => {
 
   return geminiClient
 }
-

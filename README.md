@@ -1,61 +1,50 @@
-﻿# AI Resume Analyzer
+# AI Resume Analyzer
 
-A recruiter-level AI Resume Analyzer planned for resume upload, AI-assisted evaluation, report history, and role-based dashboards.
+Production-ready full-stack AI Resume Analyzer for PDF resume upload, Gemini-powered structured analysis, saved report history, resume comparison, profile management, and admin analytics.
 
-## Planned Features
+## Project Overview
 
-- JWT-based user authentication
-- PDF resume upload
-- Resume text extraction
-- Gemini AI resume analysis
-- User dashboard for reports and history
-- Admin dashboard for platform oversight
-- Supabase PostgreSQL persistence
-- Responsive recruiter-focused UI
-- Vercel frontend deployment
-- Render backend deployment
+AI Resume Analyzer helps users evaluate selectable-text PDF resumes through recruiter-style AI feedback. The application includes secure JWT authentication, Supabase PostgreSQL persistence, protected user dashboards, premium report details, stateless resume comparison, and admin tools for platform oversight.
+
+## Features
+
+- User registration, login, JWT sessions, and protected routes
+- PDF resume upload with in-memory validation
+- PDF text extraction for selectable-text resumes
+- Gemini AI structured resume analysis
+- Premium report details with overall score, ATS score, grade, hiring probability, section scores, skills, weaknesses, and recommendations
+- Saved report history and report details
+- Stateless comparison between two saved resume reports
+- Profile management and password changes
+- Admin dashboard, users, reports, platform settings, and analytics
+- Admin user activation, deactivation, soft delete, and restore
+- Responsive UI for desktop, tablet, and mobile
+- Docker, Vercel, and Render deployment preparation
+
+## Screenshots
+
+Add screenshots before publishing the portfolio release:
+
+- Login and registration
+- User dashboard and upload flow
+- Premium report details
+- Resume comparison
+- Admin dashboard
+- Admin analytics
+- Admin user management
 
 ## Technology Stack
 
-- Frontend: React + Vite
-- Backend: Node.js + Express
+- Frontend: React, Vite, React Router, Axios
+- Backend: Node.js, Express, ES modules
 - Database: Supabase PostgreSQL
-- Authentication: JWT
-- AI: Gemini AI
-- File Uploads: PDF resume uploads
-- Deployment: Vercel and Render
+- Authentication: JWT, bcrypt
+- AI: Gemini via `@google/genai`
+- Uploads: Multer memory storage, PDF parsing
+- Security: Helmet, CORS allowlist, environment-only secrets
+- Deployment: Vercel frontend, Render backend, Docker support
 
 ## Folder Structure
-
-```text
-AI-Resume-Analyzer/
-|-- client/
-|-- server/
-|-- docs/
-|   |-- architecture.md
-|   `-- roadmap.md
-|-- .gitignore
-`-- README.md
-```
-
-## Current Status
-
-Phase 8C - Final QA, Bug Fixing and Documentation complete
-
-## Main Features
-
-- User registration and login with JWT authentication
-- Protected user dashboard with saved report metrics
-- PDF resume upload with in-memory validation
-- PDF text extraction for selectable-text resumes
-- Gemini-powered resume analysis when `GEMINI_API_KEY` is configured
-- Saved resume report history and report details
-- Profile management with full name update and password change
-- Admin dashboard with user/report oversight and activate/deactivate controls
-- Responsive React interface for desktop, tablet, and mobile
-- Production-ready environment configuration and Docker packaging
-
-## Current Project Structure
 
 ```text
 AI-Resume-Analyzer/
@@ -63,6 +52,7 @@ AI-Resume-Analyzer/
 |   |-- src/
 |   |   |-- components/
 |   |   |-- context/
+|   |   |-- hooks/
 |   |   |-- layouts/
 |   |   |-- pages/
 |   |   |-- routes/
@@ -88,12 +78,13 @@ AI-Resume-Analyzer/
 |   `-- package.json
 |-- docs/
 |-- docker-compose.yml
-|-- .dockerignore
-|-- .gitignore
+|-- render.yaml
+|-- vercel.json
+|-- LICENSE
 `-- README.md
 ```
 
-## Local Installation
+## Local Setup
 
 Install backend dependencies:
 
@@ -109,21 +100,33 @@ cd client
 npm install
 ```
 
-Create local environment files from the examples:
+Create local environment files:
 
 ```bash
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
 
-Never commit real `.env` files.
+Run the backend:
+
+```bash
+cd server
+npm run dev
+```
+
+Run the frontend:
+
+```bash
+cd client
+npm run dev
+```
 
 ## Environment Variables
 
 Backend variables in `server/.env`:
 
-- `PORT`
 - `NODE_ENV`
+- `PORT`
 - `CLIENT_URL`
 - `CORS_ORIGINS`
 - `SUPABASE_URL`
@@ -133,39 +136,45 @@ Backend variables in `server/.env`:
 - `BCRYPT_SALT_ROUNDS`
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
-- `RESUME_MAX_FILE_SIZE_MB`
-- `RESUME_MIN_TEXT_LENGTH`
+- `GEMINI_MAX_OUTPUT_TOKENS`
+- `MAX_RESUME_FILE_SIZE_MB`
 - `MAX_EXTRACTED_TEXT_CHARACTERS`
 - `EXTRACTED_TEXT_PREVIEW_CHARACTERS`
+- `MAX_AI_RESUME_TEXT_CHARACTERS`
 
 Frontend variable in `client/.env`:
 
 - `VITE_API_BASE_URL`
 
-Secrets such as `SUPABASE_SECRET_KEY`, `JWT_SECRET`, and `GEMINI_API_KEY` must stay backend-only.
+Production environment checklist:
+
+- Supabase URL: set `SUPABASE_URL` in the backend.
+- Supabase anon key: not required by this app because the browser does not connect directly to Supabase.
+- Supabase service role key: set `SUPABASE_SECRET_KEY` in the backend only.
+- JWT secret: set `JWT_SECRET` in the backend only.
+- Gemini API key: set `GEMINI_API_KEY` in the backend only.
+- Client URL: set `CLIENT_URL` or `CORS_ORIGINS` in the backend to the deployed frontend origin.
+- Server URL: set `VITE_API_BASE_URL` in the frontend to the deployed backend `/api` URL.
 
 ## Supabase Setup
 
-Run the SQL migration in:
+Apply migrations in order from `server/supabase/migrations/`:
 
-```text
-server/supabase/migrations/001_initial_schema.sql
-```
+1. `001_initial_schema.sql`
+2. `002_platform_settings.sql`
+3. `003_profile_soft_delete.sql`
 
-The migration creates:
-
-- `profiles`
-- `resume_reports`
-- UUID defaults
-- constraints and indexes
-- automatic `updated_at` triggers
-- Row Level Security enabled without public browser policies
-
-The Express backend uses the server-side Supabase key and enforces user/admin authorization.
+The schema stores application profiles, resume reports, platform settings, and soft-delete metadata. Row Level Security is enabled, and authorization is enforced by the trusted Express backend.
 
 ## Gemini Setup
 
-Set `GEMINI_API_KEY` in `server/.env` to enable live AI analysis. Without a key, the analysis endpoint returns a safe temporary-unavailable response while the rest of the app continues to work.
+Set `GEMINI_API_KEY` in the backend environment to enable live AI resume analysis and comparison narratives.
+
+Recommended default:
+
+```text
+GEMINI_MODEL=gemini-3.5-flash
+```
 
 ## Development Commands
 
@@ -189,21 +198,68 @@ npm run preview
 
 ## Production Build
 
-Build the frontend:
+Frontend:
 
 ```bash
 cd client
 npm run build
 ```
 
-Start the backend:
+Backend:
 
 ```bash
 cd server
 npm start
 ```
 
-## API Endpoint Summary
+## Deployment Steps
+
+### Vercel Frontend
+
+1. Import the GitHub repository into Vercel.
+2. Use the root `vercel.json` configuration, or set the project root to `client`.
+3. Set `VITE_API_BASE_URL` to the deployed backend API URL, for example:
+
+```text
+https://your-render-service.onrender.com/api
+```
+
+4. Deploy and verify the frontend routes load after refresh.
+
+### Render Backend
+
+1. Create a Render Web Service or use the root `render.yaml` blueprint.
+2. Set the service root directory to `server` if configuring manually.
+3. Build command:
+
+```bash
+npm ci
+```
+
+4. Start command:
+
+```bash
+npm start
+```
+
+5. Set required backend environment variables in Render.
+6. Verify:
+
+```text
+GET https://your-render-service.onrender.com/api/health
+```
+
+### Docker
+
+Build and run with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Supabase remains an external managed service and is not included in Docker Compose.
+
+## API Endpoints
 
 Health:
 
@@ -222,7 +278,7 @@ Profile:
 - `PUT /api/profile`
 - `PUT /api/profile/password`
 
-Resumes and reports:
+Resumes and Reports:
 
 - `POST /api/resumes/upload`
 - `POST /api/resumes/extract-text`
@@ -230,378 +286,87 @@ Resumes and reports:
 - `GET /api/resumes/dashboard-summary`
 - `GET /api/resumes/reports`
 - `GET /api/resumes/reports/:reportId`
+- `GET /api/reports/compare/options`
+- `POST /api/reports/compare`
 
 Admin:
 
 - `GET /api/admin/dashboard`
+- `GET /api/admin/analytics/overview`
+- `GET /api/admin/analytics/trends`
+- `GET /api/admin/analytics/skills`
 - `GET /api/admin/users`
+- `GET /api/admin/users/:userId`
+- `GET /api/admin/users/:userId/reports`
 - `GET /api/admin/reports`
+- `GET /api/admin/settings`
+- `PUT /api/admin/settings`
 - `PUT /api/admin/users/:userId/status`
+- `PATCH /api/admin/users/:userId/status`
+- `DELETE /api/admin/users/:userId`
 
-## User Flow
+Settings:
 
-1. Register or log in.
-2. Open the dashboard.
-3. Upload a selectable-text PDF resume.
-4. Run AI analysis when Gemini is configured.
-5. Review the saved report.
-6. View report history and report details.
-7. Manage profile details and password.
-
-## Admin Flow
-
-1. Log in with an admin account.
-2. Open the admin dashboard.
-3. Review platform statistics.
-4. View users and reports.
-5. Activate or deactivate non-admin target users when needed.
-
-Admin authorization is verified by the backend from the authenticated database profile.
-
-## Deployment Guidance
-
-- Deploy the backend to Render, Railway, Fly.io, a VPS, or a Docker host.
-- Deploy the frontend to Vercel, Netlify, static hosting, or Docker/nginx.
-- Set `VITE_API_BASE_URL` to the deployed backend `/api` URL before building the frontend.
-- Set backend `CLIENT_URL` or `CORS_ORIGINS` to the deployed frontend origin.
-- Keep Supabase and Gemini secrets only in the backend runtime environment.
+- `GET /api/settings/public`
 
 ## Security Notes
 
+- Real `.env` files are ignored by Git.
+- Secrets are loaded only from environment variables.
+- Supabase service role key stays backend-only.
+- Gemini API key stays backend-only.
 - Passwords are hashed with bcrypt.
-- JWT secrets are required at backend startup.
 - Password hashes are never returned by API responses.
 - Protected routes require a valid bearer token.
-- Admin routes verify role server-side and never trust frontend role claims alone.
-- Resume PDFs are processed in memory; original files are not permanently stored.
-- Real `.env` files are ignored by Git and Docker build context.
+- Admin routes verify role server-side.
+- CORS is controlled by `CLIENT_URL` and `CORS_ORIGINS`.
 - Helmet is enabled and Express `x-powered-by` is disabled.
-- CORS uses an environment-driven allowlist.
+- Uploaded PDFs are processed in memory and are not permanently stored.
 
-## Known Limitations
+## Production Checklist
 
-- OCR is not implemented; scanned/image-only PDFs are rejected safely.
-- Live Gemini analysis requires a configured `GEMINI_API_KEY`.
-- Supabase is external and is not included in Docker Compose.
-- There is no password reset email flow yet.
-- There is no report deletion or admin role-management UI.
-- Server audit currently reports a `brace-expansion` advisory; no automatic fix was applied.
-- Client audit currently reports React Router advisories that require an upstream-compatible package decision; no automatic force fix was applied.
+- Frontend build passes
+- Frontend lint passes
+- Backend starts with production environment variables
+- `/api/health` returns HTTP 200
+- `/api/health/database` returns HTTP 200 when Supabase credentials are valid
+- Vercel has `VITE_API_BASE_URL`
+- Render has backend secrets and `CLIENT_URL`
+- CORS allows the deployed frontend origin
+- Supabase migrations are applied
+- Gemini key is configured for live analysis
+- Auth, upload, analysis, reports, comparison, profile, admin users, admin analytics, and admin settings are verified manually
 
-## Phase 7A Completion Summary
+## Portfolio Copy
 
-- Professional authenticated User Dashboard foundation added
-- Responsive desktop sidebar and mobile navigation added
-- Authenticated-user dashboard header, overview cards, quick actions, and profile summary added
-- Resume upload placeholder only; no upload functionality added
-- Recent reports empty state only; no report APIs or fake report records added
-- Existing AuthContext logout reused
-- No Gemini AI integration added
-- Build result: passed
+Short summary:
 
-## Phase 7B Completion Summary
-
-- Protected `POST /api/resumes/upload` endpoint added
-- Existing JWT authentication middleware reused
-- PDF-only upload validation added
-- Maximum resume file size validation added: 5 MB
-- Multer memory storage used; no permanent file storage added
-- Frontend PDF selection and validation upload UI added
-- Safe upload success and error states added
-- No PDF parsing added
-- No Gemini AI integration added
-- No report record creation or fake report data added
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-- Backend endpoint tests: passed
-
-## Phase 7C Completion Summary
-
-- Protected `POST /api/resumes/extract-text` endpoint added
-- Existing JWT authentication middleware reused
-- Existing Multer PDF validation and memory storage reused
-- PDF text is parsed from the uploaded buffer in memory
-- Extracted text is cleaned, trimmed, and limited before returning a preview
-- Page count, word count, and character count returned when extraction succeeds
-- Scanned, image-only, empty, corrupted, oversized, and encrypted PDFs return safe JSON errors
-- No OCR added
-- No Gemini AI integration added
-- No ATS score calculated
-- No report record created
-- No Supabase Storage or permanent local file storage added
-- Backend tests: passed for health, database health, auth, upload validation, extraction success, and extraction failure cases
-- Frontend dev server: launched successfully
-- Frontend responsive check: passed at 1440px, 1024px, 768px, 430px, 375px, and 320px with no horizontal overflow
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-- Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities
-
-## Phase 7D Completion Summary
-
-- Official `@google/genai` SDK added for backend-only Gemini integration
-- Configurable `GEMINI_MODEL` added with default `gemini-2.5-flash`
-- Protected `POST /api/resumes/analyze` endpoint added
-- Existing JWT authentication middleware reused
-- Existing secure Multer PDF validation reused
-- Existing PDF text extraction utility reused before AI analysis
-- Gemini API key remains backend-only; no frontend Gemini key or browser Gemini call added
-- One structured JSON Gemini request is used for analysis
-- Server-side validation normalizes and checks every AI field before responding
-- Prompt-injection precautions treat resume text as untrusted data
-- Temporary analysis includes resume quality score, professional summary, strengths, weaknesses, detected skills, missing sections, suggestions, and ATS checks
-- Frontend analysis result UI added with temporary-result notice and score disclaimer
-- Dashboard metrics remain truthful: no report count update, no latest score update, and no recent report insertion
-- Missing `GEMINI_API_KEY` returns safe 503 from analysis endpoint while health/auth continue working
-- Invalid Gemini key returns a safe provider error
-- No OCR added
-- No job matching added
-- No protected-trait inference or hiring decision added
-- No report persistence, Supabase insert, Supabase Storage, or permanent local PDF storage added
-- Backend tests: passed for health, database health, auth, upload, extract-text, missing key, invalid key, auth failures, invalid files, oversized PDF, corrupt PDF, scanned PDF, and inactive user
-- Live Gemini success test skipped because no real Gemini key is configured in this environment
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-- Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities; full `npm audit` reports one high-severity `brace-expansion` advisory
-
-## Phase 7E Completion Summary
-
-- Successful validated Gemini analysis is now persisted in the existing `resume_reports` table
-- Reports are owned by the authenticated `req.user.id`
-- Protected `GET /api/resumes/dashboard-summary` endpoint added
-- Dashboard summary returns Total Reports, Latest Score, and up to 5 Recent Reports
-- Recent reports are scoped to the logged-in user and sorted newest first
-- `original_file_name`, `overall_score`, and validated `analysis_result` are saved
-- `stored_file_url` remains null because the original PDF is not stored
-- `resume_text` remains null because full extracted text is not stored
-- AI model metadata is stored inside validated `analysis_result.metadata`
-- Frontend dashboard metrics now load from the backend summary endpoint
-- Recent Reports list added without dead detail links
-- Analyze flow saves the report in the same backend request that extracts and analyzes the resume
-- Browser never submits AI analysis JSON for persistence
-- User isolation tested with two users
-- Empty dashboard state returns `totalReports: 0`, `latestScore: null`, and `recentReports: []`
-- Database insert failure returns a safe save error without fake success
-- Gemini failure creates no report row
-- No PDF storage, Supabase Storage, report details page, full history page, report deletion, admin features, OCR, or job matching added
-- Backend tests: passed for dashboard summary, upload-only, extract-only, missing key, invalid auth, invalid files, scanned PDF, insert failure handling, two-user isolation, and mocked analyze-and-save persistence path
-- Live Gemini analyze-and-save returned a safe provider error in this environment, so no live report was inserted
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-- Dependency audit result: server `npm audit --omit=dev` found 0 vulnerabilities; client `npm audit --omit=dev` reports two high-severity React Router advisories
-
-## Phase 7F Completion Summary
-
-- Protected `GET /api/resumes/reports` endpoint added for paginated report history
-- Protected `GET /api/resumes/reports/:reportId` endpoint added for single saved report details
-- Report history uses database-backed pagination with default limit 10 and maximum limit 25
-- Reports are scoped to the authenticated user and sorted newest first
-- Report list returns safe summary fields only and does not return full saved analysis JSON
-- Report details return the saved analysis, extraction summary, score, file name, model, and dates
-- Missing, malformed, or another user's report returns the same safe 404 response
-- Reports History page and Report Details page added behind the existing protected routing
-- Dashboard Recent Reports now links to saved report details and View All Reports links to history
-- Opening saved reports does not rerun Gemini, upload the PDF, retrieve the PDF, edit reports, or delete reports
-- No admin report access was added
-- Backend tests: passed
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-- Dependency audit result: `npm audit --omit=dev` found 0 vulnerabilities; full `npm audit` reports one high-severity `brace-expansion` advisory
-
-## Phase 7G Completion Summary
-
-- Protected `GET /api/profile` endpoint added for the authenticated user's profile
-- Protected `PUT /api/profile` endpoint added for updating full name only
-- Protected `PUT /api/profile/password` endpoint added for password changes
-- Profile updates use `req.user.id`; the browser never supplies a user ID
-- Email remains read-only and password hashes are never returned
-- Password changes verify the current password and hash the new password with the existing password utility
-- Profile page added at `/profile` behind the existing protected routing
-- Profile page displays full name, email, role, and joined date
-- Full name update and password change forms include loading, success, and safe error states
-- Dashboard/sidebar/mobile navigation now include a real Profile link
-- No admin functionality was added
-- Backend tests: passed for profile load, name update, weak password rejection, wrong current password rejection, password change, old password rejection, new password login, unauthorized profile request, and existing dashboard summary
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-
-## Phase 7H Completion Summary
-
-- Protected admin API mounted at `/api/admin`
-- Admin-only `GET /api/admin/dashboard` endpoint added for total users, active users, and total reports
-- Admin-only `GET /api/admin/users` endpoint added for paginated users
-- Admin-only `GET /api/admin/reports` endpoint added for paginated saved reports
-- Admin-only `PUT /api/admin/users/:userId/status` endpoint added for activating and deactivating users
-- Backend verifies admin access from the authenticated server-side user profile, never from frontend role claims
-- Non-admin users receive safe `403` responses from admin endpoints
-- Admin users cannot deactivate their own account from the admin panel
-- Admin Dashboard, Admin Users, and Admin Reports pages added
-- Admin pages include loading, empty, and error states
-- Admin pages reuse the existing dashboard shell, header, navigation, cards, and pagination controls
-- Admin navigation is responsive on desktop and mobile
-- No report editing, report deletion, user deletion, role editing, or Phase 8 functionality was added
-- Backend tests: passed for admin login, non-admin 403, dashboard statistics, users list, reports list, deactivate, reactivate, inactive-user login rejection, and malformed ID handling
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-
-## Phase 8A Completion Summary
-
-- Backend startup now validates core production environment variables before listening
-- Backend CORS now uses `CLIENT_URL` and optional comma-separated `CORS_ORIGINS`
-- Production requires at least one frontend origin through `CLIENT_URL` or `CORS_ORIGINS`
-- Express `x-powered-by` header is disabled
-- Helmet remains enabled for production security headers
-- JSON request body parsing uses a conservative size limit
-- Graceful shutdown now guards against duplicate shutdown signals and force-exits after timeout
-- Frontend API client uses `VITE_API_BASE_URL` with localhost fallback only in development
-- Real `.env` files remain ignored while `.env.example` files stay tracked
-- No API routes, dashboards, authentication behavior, admin behavior, or AI features were changed
-- Backend health check: passed
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-
-## Phase 8B Completion Summary
-
-- Production Dockerfile added for the Express backend
-- Production Dockerfile added for the React frontend
-- Frontend Docker image builds the Vite app and serves static files with nginx
-- Root Docker Compose setup added for frontend and backend services
-- Docker Compose does not include Supabase because Supabase remains an external service
-- Root `.dockerignore` added to keep dependencies, builds, logs, temporary uploads, and real environment files out of Docker build contexts
-- Docker health check uses the existing backend `/api/health` endpoint
-- Docker setup uses environment variables only; no secrets or deployment URLs are hardcoded
-- Existing APIs and application behavior were not changed
-- Frontend build result: passed
-- Frontend lint result: passed with one existing AuthContext Fast Refresh warning
-
-## Phase 8C Completion Summary
-
-- Final backend smoke tests completed for health, auth, profile, resume upload, PDF extraction, reports, and admin access
-- Missing and invalid tokens return safe unauthorized responses
-- Non-admin admin access returns a safe forbidden response
-- Invalid report and admin user IDs return safe not-found responses
-- Password hashes were not present in tested user, profile, or admin responses
-- User report isolation was verified with separate disposable users
-- Gemini analysis returned a safe `503` because no live Gemini key is configured in this local environment
-- CORS denial now returns a safe JSON `403` instead of a generic server error
-- Frontend production build passed
-- Frontend lint passed with one existing AuthContext Fast Refresh warning
-- Docker Compose config validation passed; Docker image runtime tests were skipped because the Docker daemon is unavailable locally
-- Full npm audits completed; advisories are documented in Known Limitations and were not auto-fixed
-- Documentation finalized with setup, environment, Supabase, Gemini, Docker, API, deployment, security, and known limitation notes
-
-## Setup Instructions
-
-### Backend
-
-Create `server/.env` from `server/.env.example` and set:
-
-- `NODE_ENV=production`
-- `PORT`
-- `CLIENT_URL` for one frontend origin, or `CORS_ORIGINS` for comma-separated frontend origins
-- `SUPABASE_URL`
-- `SUPABASE_SECRET_KEY`
-- `JWT_SECRET`
-- Optional resume/Gemini limits and `GEMINI_API_KEY`
-
-Keep `SUPABASE_SECRET_KEY`, `JWT_SECRET`, and `GEMINI_API_KEY` backend-only.
-
-### Frontend
-
-Create `client/.env` from `client/.env.example` and set:
-
-- `VITE_API_BASE_URL=https://your-backend-domain.example/api`
-
-Local development can omit `VITE_API_BASE_URL`; the frontend falls back to `http://localhost:5000/api` only while running Vite in development mode.
-
-### Production Build
-
-Install dependencies separately in `server` and `client`.
-
-Run the frontend production build from `client`:
-
-```bash
-npm run build
+```text
+Full-stack AI Resume Analyzer with React, Express, Supabase, JWT auth, Gemini AI, PDF analysis, report history, resume comparison, and admin analytics.
 ```
 
-Start the backend from `server`:
+Resume-ready description:
 
-```bash
-npm start
+```text
+Built a production-ready AI Resume Analyzer using React, Vite, Express, Supabase PostgreSQL, JWT authentication, and Gemini AI, including PDF parsing, structured AI reports, report history, resume comparison, profile management, admin user management, analytics dashboards, Docker setup, and deployment-ready documentation.
 ```
 
-### Docker Build
+Additional portfolio assets are available in `docs/portfolio-assets.md`.
 
-Build the backend image from the project root:
+## Future Improvements
 
-```bash
-docker build -f server/Dockerfile -t ai-resume-analyzer-backend .
-```
+- Password reset email flow
+- OCR for scanned PDF resumes
+- Supabase Storage for optional file retention
+- Job-description matching mode
+- Report export to PDF
+- Automated end-to-end browser tests
+- Admin role-management workflow
 
-Build the frontend image from the project root:
+## License
 
-```bash
-docker build -f client/Dockerfile -t ai-resume-analyzer-frontend --build-arg VITE_API_BASE_URL=http://localhost:5000/api .
-```
+This project is licensed under the MIT License. See `LICENSE`.
 
-### Docker Compose
+## Credits
 
-Docker Compose runs:
-
-- `backend` on `http://localhost:5000`
-- `frontend` on `http://localhost:8080`
-
-Supabase is not included in Docker Compose. Use your existing hosted Supabase project.
-
-Before running Docker Compose, provide required backend values through your shell or a local Compose env file:
-
-```bash
-SUPABASE_URL=your-supabase-url
-SUPABASE_SECRET_KEY=your-server-only-key
-JWT_SECRET=your-jwt-secret
-CLIENT_URL=http://localhost:8080
-CORS_ORIGINS=http://localhost:8080
-VITE_API_BASE_URL=http://localhost:5000/api
-```
-
-Then start the local production stack:
-
-```bash
-docker compose up --build
-```
-
-Stop the stack:
-
-```bash
-docker compose down
-```
-
-### Docker Environment Variables
-
-Backend runtime variables:
-
-- `NODE_ENV`
-- `PORT`
-- `CLIENT_URL`
-- `CORS_ORIGINS`
-- `SUPABASE_URL`
-- `SUPABASE_SECRET_KEY`
-- `JWT_SECRET`
-- `JWT_EXPIRES_IN`
-- `BCRYPT_SALT_ROUNDS`
-- `GEMINI_API_KEY`
-- `GEMINI_MODEL`
-- `RESUME_MAX_FILE_SIZE_MB`
-- `RESUME_MIN_TEXT_LENGTH`
-
-Frontend build variable:
-
-- `VITE_API_BASE_URL`
-
-Keep `SUPABASE_SECRET_KEY`, `JWT_SECRET`, and `GEMINI_API_KEY` backend-only.
-
-
-
-
-
-
-
+Built as a full-stack portfolio project using React, Vite, Node.js, Express, Supabase PostgreSQL, Gemini AI, and Docker-ready deployment workflows.

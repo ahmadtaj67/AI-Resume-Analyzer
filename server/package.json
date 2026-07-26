@@ -1,7 +1,7 @@
 {
   "name": "ai-resume-analyzer-server",
   "version": "1.0.0",
-  "description": "Express API foundation for the AI Resume Analyzer.",
+  "description": "Production Express API for the AI Resume Analyzer.",
   "type": "module",
   "main": "src/server.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@google/genai": "^2.13.0",
     "@supabase/supabase-js": "^2.110.7",

@@ -86,12 +86,23 @@ export const analyzeResume = async (req, res, next) => {
     }
     const reportJson = {
       professionalSummary: analysisResult.analysis.professionalSummary,
+      atsScore: analysisResult.analysis.atsScore,
+      resumeGrade: analysisResult.analysis.resumeGrade,
+      hiringProbability: analysisResult.analysis.hiringProbability,
+      recruiterVerdict: analysisResult.analysis.recruiterVerdict,
+      jobReadiness: analysisResult.analysis.jobReadiness,
       strengths: analysisResult.analysis.strengths,
       weaknesses: analysisResult.analysis.weaknesses,
       detectedSkills: analysisResult.analysis.detectedSkills,
+      missingSkills: analysisResult.analysis.missingSkills,
+      recommendedSkills: analysisResult.analysis.recommendedSkills,
+      priorityImprovements: analysisResult.analysis.priorityImprovements,
+      strengthRanking: analysisResult.analysis.strengthRanking,
       missingSections: analysisResult.analysis.missingSections,
       improvementSuggestions: analysisResult.analysis.improvementSuggestions,
       atsChecks: analysisResult.analysis.atsChecks,
+      resumeSectionScores: analysisResult.analysis.resumeSectionScores,
+      finalRecommendation: analysisResult.analysis.finalRecommendation,
       extraction: extractionSummary,
     }
     const savedReport = await createResumeReport({

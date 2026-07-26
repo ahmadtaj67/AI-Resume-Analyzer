@@ -16,3 +16,9 @@ export const getSafeRedirectPath = (from, fallbackPath = '/dashboard') => {
 
   return trimmedFrom
 }
+
+export const getDefaultAuthenticatedPath = (user) =>
+  user?.role === 'admin' ? '/admin' : '/dashboard'
+
+export const getRoleAwareRedirectPath = (from, user) =>
+  getSafeRedirectPath(from, getDefaultAuthenticatedPath(user))

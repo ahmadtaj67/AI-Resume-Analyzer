@@ -14,6 +14,7 @@ import {
 import {
   getCurrentUser,
   loginUser as loginUserService,
+  registerUser as registerUserService,
 } from '../services/authService.js'
 
 const AuthContext = createContext(null)
@@ -97,15 +98,13 @@ export function AuthProvider({ children }) {
     }
   }, [resetAuthState])
 
-  const login = useCallback(
-    async (credentials, rememberMe) => {
-      const loginResult = await loginUserService(credentials)
-
-      if (!loginResult.accessToken || !loginResult.user) {
+  const authenticateWithToken = useCallback(
+    async (authResult, rememberMe) => {
+      if (!authResult.accessToken || !authResult.user) {
         throw new Error('Something went wrong. Please try again.')
       }
 
-      storeToken(loginResult.accessToken, rememberMe)
+      storeToken(authResult.accessToken, rememberMe)
 
       try {
         const verifiedUser = await getCurrentUser()
@@ -126,6 +125,24 @@ export function AuthProvider({ children }) {
       }
     },
     [resetAuthState],
+  )
+
+  const login = useCallback(
+    async (credentials, rememberMe) => {
+      const loginResult = await loginUserService(credentials)
+
+      return authenticateWithToken(loginResult, rememberMe)
+    },
+    [authenticateWithToken],
+  )
+
+  const register = useCallback(
+    async (registrationData) => {
+      const registerResult = await registerUserService(registrationData)
+
+      return authenticateWithToken(registerResult, false)
+    },
+    [authenticateWithToken],
   )
 
   const logout = useCallback(() => {
@@ -151,6 +168,7 @@ export function AuthProvider({ children }) {
       isInitializing,
       login,
       logout,
+      register,
       restoreSession,
       updateUser,
     }),
@@ -160,6 +178,7 @@ export function AuthProvider({ children }) {
       isInitializing,
       login,
       logout,
+      register,
       restoreSession,
       updateUser,
     ],

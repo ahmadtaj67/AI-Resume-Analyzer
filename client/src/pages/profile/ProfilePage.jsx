@@ -78,18 +78,19 @@ const getNavigationItems = (pathname, user) => [
     isActive: pathname.startsWith('/reports'),
   },
   {
+    label: 'Compare',
+    href: '/compare',
+    isActive: pathname === '/compare',
+  },
+  {
     label: 'Profile',
     href: '/profile',
     isActive: pathname === '/profile',
   },
 ]
 
-const isStrongPassword = (password) =>
-  typeof password === 'string' &&
-  password.length >= 8 &&
-  /[A-Z]/.test(password) &&
-  /[a-z]/.test(password) &&
-  /\d/.test(password)
+const isValidPassword = (password) =>
+  typeof password === 'string' && password.length >= 6
 
 function ProfilePage() {
   const { logout, updateUser, user } = useAuth()
@@ -156,9 +157,8 @@ function ProfilePage() {
       nextErrors.currentPassword = 'Current password is required.'
     }
 
-    if (!isStrongPassword(passwordValues.newPassword)) {
-      nextErrors.newPassword =
-        'New password must be at least 8 characters and include uppercase, lowercase, and number characters.'
+    if (!isValidPassword(passwordValues.newPassword)) {
+      nextErrors.newPassword = 'New password must be at least 6 characters.'
     }
 
     if (!passwordValues.confirmPassword) {

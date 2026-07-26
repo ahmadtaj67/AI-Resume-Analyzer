@@ -94,3 +94,29 @@ export const getReportById = async (reportId) => {
     throw createSafeApiError(error)
   }
 }
+
+export const getReportComparisonOptions = async () => {
+  try {
+    const response = await apiClient.get('/reports/compare/options')
+
+    return response.data.data?.reports
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}
+
+export const compareReports = async ({ previousReportId, currentReportId }) => {
+  try {
+    const response = await apiClient.post('/reports/compare', {
+      previousReportId,
+      currentReportId,
+    })
+
+    return {
+      message: response.data.message,
+      comparison: response.data.data?.comparison,
+    }
+  } catch (error) {
+    throw createSafeApiError(error)
+  }
+}

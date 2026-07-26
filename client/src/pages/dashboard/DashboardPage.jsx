@@ -10,6 +10,7 @@ import RecentReportsEmptyState from '../../components/dashboard/RecentReportsEmp
 import RecentReportsList from '../../components/dashboard/RecentReportsList.jsx'
 import ResumeUploadPlaceholder from '../../components/dashboard/ResumeUploadPlaceholder.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useSettings } from '../../hooks/useSettings.js'
 import { getDashboardSummary } from '../../services/resumeService.js'
 
 const formatRole = (role) => {
@@ -72,6 +73,7 @@ const getAccountStatus = (user) => {
 
 function DashboardPage() {
   const { logout, user } = useAuth()
+  const { refreshSettings, settings } = useSettings()
   const location = useLocation()
   const profileRef = useRef(null)
   const mainContentRef = useRef(null)
@@ -116,8 +118,9 @@ function DashboardPage() {
   }, [])
 
   useEffect(() => {
+    refreshSettings()
     fetchDashboardSummary()
-  }, [fetchDashboardSummary])
+  }, [fetchDashboardSummary, refreshSettings])
 
   const focusMainContent = () => {
     mainContentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -147,6 +150,11 @@ function DashboardPage() {
       label: 'Reports',
       href: '/reports',
       isActive: location.pathname.startsWith('/reports'),
+    },
+    {
+      label: 'Compare',
+      href: '/compare',
+      isActive: location.pathname === '/compare',
     },
     {
       label: 'Analyze Resume',
@@ -192,7 +200,7 @@ function DashboardPage() {
     },
     {
       label: 'Current Plan',
-      value: 'Free',
+      value: settings.currentPlanName,
       supportingText: 'Starter access',
       tone: 'slate',
     },
@@ -203,6 +211,8 @@ function DashboardPage() {
       <DashboardSidebar
         navigationItems={navigationItems}
         onLogout={logout}
+        platformName={settings.platformName}
+        platformTagline={settings.platformTagline}
         userEmail={userEmail}
         userInitials={userInitials}
         userName={userName}
@@ -212,6 +222,7 @@ function DashboardPage() {
         <MobileNavigation
           navigationItems={navigationItems}
           onLogout={logout}
+          platformName={settings.platformName}
           userInitials={userInitials}
         />
 
@@ -228,18 +239,30 @@ function DashboardPage() {
             <div>
               <p className="eyebrow">Overview</p>
               <h2 id="dashboard-welcome-title">
-                {firstName ? `Welcome back, ${firstName}` : 'Welcome back'}
+                {firstName && settings.dashboardWelcomeTitle === 'Welcome back'
+                  ? `Welcome back, ${firstName}`
+                  : settings.dashboardWelcomeTitle}
               </h2>
-              <p>
-                This workspace is ready for your upcoming resume analysis tools.
-                Uploads, scoring, and recruiter-focused insights will become
-                available in later phases.
-              </p>
+              <p>{settings.dashboardWelcomeMessage}</p>
             </div>
             {user?.is_active === true ? (
               <span className="dashboard-status-pill">Account Active</span>
             ) : null}
           </section>
+
+          {settings.announcement ? (
+            <section className="dashboard-panel settings-announcement" aria-label="Platform announcement">
+              <p className="eyebrow">Announcement</p>
+              <p>{settings.announcement}</p>
+            </section>
+          ) : null}
+
+          {settings.maintenanceMode ? (
+            <section className="dashboard-panel settings-maintenance" aria-label="Maintenance notice">
+              <p className="eyebrow">Maintenance</p>
+              <p>{settings.maintenanceMessage || 'Maintenance mode is enabled.'}</p>
+            </section>
+          ) : null}
 
           <section className="dashboard-overview-grid" aria-label="Dashboard overview">
             {overviewCards.map((card) => (
@@ -254,7 +277,10 @@ function DashboardPage() {
           </section>
 
           <div className="dashboard-content-grid">
-            <ResumeUploadPlaceholder onReportSaved={fetchDashboardSummary} />
+            <ResumeUploadPlaceholder
+              instructions={settings.resumeUploadInstructions}
+              onReportSaved={fetchDashboardSummary}
+            />
             <ProfileSummary
               accountStatus={accountStatus}
               profileRef={profileRef}

@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: ai-resume-analyzer-api
+    runtime: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: "12"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash
+      - key: GEMINI_MAX_OUTPUT_TOKENS
+        value: "4096"
+      - key: MAX_RESUME_FILE_SIZE_MB
+        value: "5"
+      - key: MAX_EXTRACTED_TEXT_CHARACTERS
+        value: "50000"
+      - key: EXTRACTED_TEXT_PREVIEW_CHARACTERS
+        value: "3000"
+      - key: MAX_AI_RESUME_TEXT_CHARACTERS
+        value: "30000"

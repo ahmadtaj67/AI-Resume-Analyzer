@@ -3,12 +3,14 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import AuthField from '../../components/auth/AuthField.jsx'
 import PasswordField from '../../components/auth/PasswordField.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { getSafeRedirectPath } from '../../utils/redirect.js'
+import { useSettings } from '../../hooks/useSettings.js'
+import { getDefaultAuthenticatedPath } from '../../utils/redirect.js'
 
 function LoginPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { settings } = useSettings()
   const [formValues, setFormValues] = useState({
     email: '',
     password: '',
@@ -68,14 +70,14 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login(
+      const result = await login(
         {
           email: formValues.email.trim(),
           password: formValues.password,
         },
         formValues.rememberMe,
       )
-      navigate(getSafeRedirectPath(location.state?.from), { replace: true })
+      navigate(getDefaultAuthenticatedPath(result.user), { replace: true })
     } catch (error) {
       setFormMessage(error.message)
     } finally {
@@ -148,7 +150,7 @@ function LoginPage() {
       </button>
 
       <p className="auth-switch">
-        New to AI Resume Analyzer? <Link to="/register">Create an account</Link>
+        New to {settings.platformName}? <Link to="/register">Create an account</Link>
       </p>
     </form>
   )

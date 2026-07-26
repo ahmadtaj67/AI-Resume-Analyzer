@@ -3,6 +3,7 @@ import DashboardHeader from '../dashboard/DashboardHeader.jsx'
 import DashboardSidebar from '../dashboard/DashboardSidebar.jsx'
 import MobileNavigation from '../dashboard/MobileNavigation.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
+import { useSettings } from '../../hooks/useSettings.js'
 
 const formatRole = (role) => {
   if (typeof role !== 'string' || role.trim().length === 0) {
@@ -39,7 +40,12 @@ const getNavigationItems = (pathname) => [
   {
     label: 'Users',
     href: '/admin/users',
-    isActive: pathname === '/admin/users',
+    isActive: pathname.startsWith('/admin/users'),
+  },
+  {
+    label: 'Analytics',
+    href: '/admin/analytics',
+    isActive: pathname === '/admin/analytics',
   },
   {
     label: 'Reports',
@@ -47,19 +53,20 @@ const getNavigationItems = (pathname) => [
     isActive: pathname === '/admin/reports',
   },
   {
-    label: 'User Dashboard',
-    href: '/dashboard',
-    isActive: pathname === '/dashboard',
+    label: 'Platform Settings',
+    href: '/admin/settings',
+    isActive: pathname === '/admin/settings',
   },
   {
-    label: 'Profile',
-    href: '/profile',
-    isActive: pathname === '/profile',
+    label: 'User Workspace',
+    href: '/dashboard',
+    isActive: pathname === '/dashboard',
   },
 ]
 
 function AdminShell({ children }) {
   const { logout, user } = useAuth()
+  const { settings } = useSettings()
   const location = useLocation()
   const userName = user?.full_name?.trim() || 'Admin'
   const userEmail = user?.email?.trim() || 'Email not available'
@@ -71,6 +78,8 @@ function AdminShell({ children }) {
       <DashboardSidebar
         navigationItems={navigationItems}
         onLogout={logout}
+        platformName={settings.platformName}
+        platformTagline={settings.platformTagline}
         userEmail={userEmail}
         userInitials={userInitials}
         userName={userName}
@@ -80,6 +89,7 @@ function AdminShell({ children }) {
         <MobileNavigation
           navigationItems={navigationItems}
           onLogout={logout}
+          platformName={settings.platformName}
           userInitials={userInitials}
         />
 

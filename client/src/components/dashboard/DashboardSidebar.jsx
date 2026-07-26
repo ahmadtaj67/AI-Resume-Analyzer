@@ -1,16 +1,24 @@
 import { Link } from 'react-router-dom'
 
-function DashboardSidebar({ navigationItems, onLogout, userEmail, userInitials, userName }) {
+function DashboardSidebar({
+  navigationItems,
+  onLogout,
+  platformName = 'AI Resume Analyzer',
+  platformTagline = 'Smart Career Insights',
+  userEmail,
+  userInitials,
+  userName,
+}) {
   return (
     <aside className="dashboard-sidebar" aria-label="Dashboard sidebar">
       <div>
-        <Link className="dashboard-sidebar-brand" to="/dashboard" aria-label="AI Resume Analyzer dashboard">
+        <Link className="dashboard-sidebar-brand" to="/dashboard" aria-label={`${platformName} dashboard`}>
           <span className="dashboard-brand-mark" aria-hidden="true">
             AI
           </span>
           <span>
-            <strong>AI Resume Analyzer</strong>
-            <small>Smart Career Insights</small>
+            <strong>{platformName}</strong>
+            <small>{platformTagline}</small>
           </span>
         </Link>
 

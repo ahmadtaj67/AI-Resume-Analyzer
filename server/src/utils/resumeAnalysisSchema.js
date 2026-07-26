@@ -1,6 +1,15 @@
 import { Type } from '@google/genai'
 
 export const formattingQualityValues = ['poor', 'fair', 'good', 'excellent']
+export const resumeGradeValues = ['A+', 'A', 'B', 'C', 'D']
+export const sectionScoreKeys = [
+  'contact',
+  'summary',
+  'skills',
+  'experience',
+  'education',
+  'projects',
+]
 
 export const resumeAnalysisResponseSchema = {
   type: Type.OBJECT,
@@ -11,6 +20,26 @@ export const resumeAnalysisResponseSchema = {
       maximum: 100,
     },
     professionalSummary: {
+      type: Type.STRING,
+    },
+    atsScore: {
+      type: Type.INTEGER,
+      minimum: 0,
+      maximum: 100,
+    },
+    resumeGrade: {
+      type: Type.STRING,
+      enum: resumeGradeValues,
+    },
+    hiringProbability: {
+      type: Type.INTEGER,
+      minimum: 0,
+      maximum: 100,
+    },
+    recruiterVerdict: {
+      type: Type.STRING,
+    },
+    jobReadiness: {
       type: Type.STRING,
     },
     strengths: {
@@ -24,6 +53,38 @@ export const resumeAnalysisResponseSchema = {
     detectedSkills: {
       type: Type.ARRAY,
       items: { type: Type.STRING },
+    },
+    missingSkills: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+    },
+    recommendedSkills: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+    },
+    priorityImprovements: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+    },
+    strengthRanking: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          rank: {
+            type: Type.INTEGER,
+            minimum: 1,
+            maximum: 8,
+          },
+          label: {
+            type: Type.STRING,
+          },
+          reason: {
+            type: Type.STRING,
+          },
+        },
+        required: ['rank', 'label', 'reason'],
+      },
     },
     missingSections: {
       type: Type.ARRAY,
@@ -59,16 +120,66 @@ export const resumeAnalysisResponseSchema = {
         'formattingQuality',
       ],
     },
+    resumeSectionScores: {
+      type: Type.OBJECT,
+      properties: {
+        contact: {
+          type: Type.INTEGER,
+          minimum: 0,
+          maximum: 100,
+        },
+        summary: {
+          type: Type.INTEGER,
+          minimum: 0,
+          maximum: 100,
+        },
+        skills: {
+          type: Type.INTEGER,
+          minimum: 0,
+          maximum: 100,
+        },
+        experience: {
+          type: Type.INTEGER,
+          minimum: 0,
+          maximum: 100,
+        },
+        education: {
+          type: Type.INTEGER,
+          minimum: 0,
+          maximum: 100,
+        },
+        projects: {
+          type: Type.INTEGER,
+          minimum: 0,
+          maximum: 100,
+        },
+      },
+      required: sectionScoreKeys,
+    },
+    finalRecommendation: {
+      type: Type.STRING,
+    },
   },
   required: [
     'overallScore',
     'professionalSummary',
+    'atsScore',
+    'resumeGrade',
+    'hiringProbability',
+    'recruiterVerdict',
+    'jobReadiness',
     'strengths',
     'weaknesses',
     'detectedSkills',
+    'missingSkills',
+    'recommendedSkills',
+    'priorityImprovements',
+    'strengthRanking',
     'missingSections',
     'improvementSuggestions',
     'atsChecks',
+    'resumeSectionScores',
+    'finalRecommendation',
   ],
 }
 
@@ -121,6 +232,16 @@ const normalizeScore = (value) => {
   return Math.min(100, Math.max(0, Math.round(value)))
 }
 
+const normalizeResumeGrade = (value) => {
+  const normalizedValue = normalizeString(value).toUpperCase()
+
+  if (!resumeGradeValues.includes(normalizedValue)) {
+    throw createInvalidAnalysisError()
+  }
+
+  return normalizedValue
+}
+
 const normalizeBoolean = (value) => {
   if (typeof value !== 'boolean') {
     throw createInvalidAnalysisError()
@@ -156,6 +277,38 @@ const normalizeAtsChecks = (value) => {
   }
 }
 
+const normalizeStrengthRanking = (value) => {
+  if (!Array.isArray(value)) {
+    throw createInvalidAnalysisError()
+  }
+
+  return value
+    .map((item, index) => {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        throw createInvalidAnalysisError()
+      }
+
+      return {
+        rank: Math.max(1, Math.min(8, normalizeScore(item.rank || index + 1))),
+        label: normalizeString(item.label),
+        reason: normalizeString(item.reason),
+      }
+    })
+    .filter((item) => item.label && item.reason)
+    .slice(0, 8)
+}
+
+const normalizeResumeSectionScores = (value) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw createInvalidAnalysisError()
+  }
+
+  return sectionScoreKeys.reduce((scores, key) => {
+    scores[key] = normalizeScore(value[key])
+    return scores
+  }, {})
+}
+
 export const parseAnalysisJson = (responseText) => {
   if (typeof responseText !== 'string' || responseText.trim().length === 0) {
     throw createInvalidAnalysisError()
@@ -176,12 +329,22 @@ export const validateResumeAnalysis = (analysis) => {
   return {
     overallScore: normalizeScore(analysis.overallScore),
     professionalSummary: normalizeString(analysis.professionalSummary),
+    atsScore: normalizeScore(analysis.atsScore),
+    resumeGrade: normalizeResumeGrade(analysis.resumeGrade),
+    hiringProbability: normalizeScore(analysis.hiringProbability),
+    recruiterVerdict: normalizeString(analysis.recruiterVerdict),
+    jobReadiness: normalizeString(analysis.jobReadiness),
     strengths: normalizeStringArray(analysis.strengths, 6),
     weaknesses: normalizeStringArray(analysis.weaknesses, 6),
     detectedSkills: normalizeDetectedSkills(analysis.detectedSkills),
+    missingSkills: normalizeStringArray(analysis.missingSkills, 10),
+    recommendedSkills: normalizeStringArray(analysis.recommendedSkills, 10),
+    priorityImprovements: normalizeStringArray(analysis.priorityImprovements, 8),
+    strengthRanking: normalizeStrengthRanking(analysis.strengthRanking),
     missingSections: normalizeStringArray(analysis.missingSections, 8),
     improvementSuggestions: normalizeStringArray(analysis.improvementSuggestions, 8),
     atsChecks: normalizeAtsChecks(analysis.atsChecks),
+    resumeSectionScores: normalizeResumeSectionScores(analysis.resumeSectionScores),
+    finalRecommendation: normalizeString(analysis.finalRecommendation),
   }
 }
-

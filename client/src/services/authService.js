@@ -21,6 +21,7 @@ export const registerUser = async ({ fullName, email, password }) => {
     })
 
     return {
+      accessToken: response.data.data?.accessToken,
       message: response.data.message,
       user: response.data.data?.user,
     }

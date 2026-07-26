@@ -4,6 +4,7 @@ function AuthField({
   error,
   id,
   label,
+  maxLength,
   name,
   onChange,
   placeholder,
@@ -19,6 +20,7 @@ function AuthField({
         aria-invalid={Boolean(error)}
         disabled={disabled}
         id={id}
+        maxLength={maxLength}
         name={name}
         onChange={onChange}
         placeholder={placeholder}

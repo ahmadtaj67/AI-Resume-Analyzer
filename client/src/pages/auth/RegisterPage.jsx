@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthField from '../../components/auth/AuthField.jsx'
 import PasswordField from '../../components/auth/PasswordField.jsx'
-import { registerUser } from '../../services/authService.js'
+import { useAuth } from '../../context/AuthContext.jsx'
+import { useSettings } from '../../hooks/useSettings.js'
+import { getDefaultAuthenticatedPath } from '../../utils/redirect.js'
 
 const initialFormValues = {
   fullName: '',
@@ -14,6 +16,8 @@ const initialFormValues = {
 
 function RegisterPage() {
   const navigate = useNavigate()
+  const { register } = useAuth()
+  const { settings } = useSettings()
   const [formValues, setFormValues] = useState(initialFormValues)
   const [errors, setErrors] = useState({})
   const [formMessage, setFormMessage] = useState('')
@@ -42,6 +46,8 @@ function RegisterPage() {
 
     if (!formValues.password) {
       nextErrors.password = 'Password is required.'
+    } else if (formValues.password.length < 6) {
+      nextErrors.password = 'Password must be at least 6 characters.'
     }
 
     if (!formValues.confirmPassword) {
@@ -75,17 +81,14 @@ function RegisterPage() {
     setIsSubmitting(true)
 
     try {
-      await registerUser({
+      const result = await register({
         fullName: formValues.fullName.trim(),
         email: formValues.email.trim(),
         password: formValues.password,
       })
 
-      navigate('/login', {
+      navigate(getDefaultAuthenticatedPath(result.user), {
         replace: true,
-        state: {
-          message: 'Account created successfully. Please sign in.',
-        },
       })
     } catch (error) {
       setFormMessage(error.message)
@@ -99,7 +102,7 @@ function RegisterPage() {
       <div className="form-heading">
         <p className="eyebrow">Create account</p>
         <h2>Start your analysis workspace</h2>
-        <p>This screen is UI-only for now. Account creation connects later.</p>
+        <p>Create your {settings.platformName} account and open your dashboard.</p>
       </div>
 
       {formMessage ? (
@@ -168,6 +171,8 @@ function RegisterPage() {
       <div>
         <label className="checkbox-row" htmlFor="terms">
           <input
+            aria-describedby={errors.acceptedTerms ? 'terms-error' : undefined}
+            aria-invalid={Boolean(errors.acceptedTerms)}
             checked={formValues.acceptedTerms}
             disabled={isSubmitting}
             id="terms"
@@ -178,7 +183,9 @@ function RegisterPage() {
           <span>I agree to the terms and privacy policy.</span>
         </label>
         {errors.acceptedTerms ? (
-          <p className="field-error">{errors.acceptedTerms}</p>
+          <p className="field-error" id="terms-error">
+            {errors.acceptedTerms}
+          </p>
         ) : null}
       </div>
 

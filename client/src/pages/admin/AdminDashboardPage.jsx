@@ -54,6 +54,12 @@ function AdminDashboardPage() {
       tone: 'green',
     },
     {
+      label: 'Inactive Users',
+      value: isLoading ? 'Loading' : `${stats?.inactiveUsers ?? 0}`,
+      supportingText: 'Accounts blocked from sign in',
+      tone: 'slate',
+    },
+    {
       label: 'Total Reports',
       value: isLoading ? 'Loading' : `${stats?.totalReports ?? 0}`,
       supportingText: 'Saved resume analyses',
@@ -98,11 +104,85 @@ function AdminDashboardPage() {
           <Link className="dashboard-primary-action" to="/admin/users">
             Manage Users
           </Link>
+          <Link className="dashboard-secondary-action" to="/admin/analytics">
+            View Analytics
+          </Link>
           <Link className="dashboard-secondary-action" to="/admin/reports">
             View Reports
           </Link>
+          <Link className="dashboard-secondary-action" to="/admin/settings">
+            Platform Settings
+          </Link>
         </div>
       </section>
+
+      {!isLoading && !errorMessage ? (
+        <div className="admin-dashboard-activity-grid">
+          <section className="dashboard-panel" aria-labelledby="recent-admin-users-title">
+            <div className="dashboard-section-heading">
+              <p className="eyebrow">Recent</p>
+              <h2 id="recent-admin-users-title">Recent Users</h2>
+              <p>Newest registered platform accounts.</p>
+            </div>
+            {stats?.recentUsers?.length > 0 ? (
+              <div className="admin-list-stack">
+                {stats.recentUsers.map((user) => (
+                  <article className="admin-list-card" key={user.id}>
+                    <div>
+                      <h2>{user.fullName}</h2>
+                      <p>{user.email}</p>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Role</dt>
+                        <dd>{user.role}</dd>
+                      </div>
+                      <div>
+                        <dt>Status</dt>
+                        <dd>{user.isActive ? 'Active' : 'Inactive'}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-state">No recent users yet.</p>
+            )}
+          </section>
+
+          <section className="dashboard-panel" aria-labelledby="recent-admin-reports-title">
+            <div className="dashboard-section-heading">
+              <p className="eyebrow">Recent</p>
+              <h2 id="recent-admin-reports-title">Recent Reports</h2>
+              <p>Newest saved resume analyses.</p>
+            </div>
+            {stats?.recentReports?.length > 0 ? (
+              <div className="admin-list-stack">
+                {stats.recentReports.map((report) => (
+                  <article className="admin-list-card" key={report.id}>
+                    <div>
+                      <h2>{report.fileName}</h2>
+                      <p>{report.userId}</p>
+                    </div>
+                    <dl>
+                      <div>
+                        <dt>Score</dt>
+                        <dd>{report.overallScore ?? 'N/A'}</dd>
+                      </div>
+                      <div>
+                        <dt>Created</dt>
+                        <dd>{new Date(report.createdAt).toLocaleDateString()}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="admin-empty-state">No recent reports yet.</p>
+            )}
+          </section>
+        </div>
+      ) : null}
     </AdminShell>
   )
 }

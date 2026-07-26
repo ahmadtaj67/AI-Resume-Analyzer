@@ -24,6 +24,14 @@ const buildSafeUser = (profile) => ({
   created_at: profile.created_at,
 })
 
+const buildAuthResult = (profile) => ({
+  accessToken: generateAccessToken({
+    sub: profile.id,
+    role: profile.role,
+  }),
+  user: buildSafeUser(profile),
+})
+
 const isUniqueEmailError = (error) =>
   error?.code === '23505' ||
   error?.message?.toLowerCase().includes('profiles_email_lower_unique_idx') ||
@@ -46,7 +54,7 @@ export const registerUser = async ({ fullName, email, password }) => {
   if (!validatePassword(password)) {
     throw createHttpError(
       400,
-      'Password must be at least 8 characters and include uppercase, lowercase, and number characters',
+      'Password must be at least 6 characters',
     )
   }
 
@@ -86,7 +94,11 @@ export const registerUser = async ({ fullName, email, password }) => {
     throw createHttpError(500, 'Unable to create account')
   }
 
-  return buildSafeUser(newProfile)
+  if (!newProfile.is_active || newProfile.role !== 'user') {
+    throw createHttpError(500, 'Unable to create account')
+  }
+
+  return buildAuthResult(newProfile)
 }
 
 export const loginUser = async ({ email, password }) => {
@@ -124,13 +136,5 @@ export const loginUser = async ({ email, password }) => {
     throw createHttpError(401, INVALID_CREDENTIALS_MESSAGE)
   }
 
-  const accessToken = generateAccessToken({
-    sub: profile.id,
-    role: profile.role,
-  })
-
-  return {
-    accessToken,
-    user: buildSafeUser(profile),
-  }
+  return buildAuthResult(profile)
 }

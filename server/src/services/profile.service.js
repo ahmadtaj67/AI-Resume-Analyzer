@@ -72,7 +72,7 @@ export const changeProfilePassword = async ({
   if (!validatePassword(newPassword)) {
     throw createHttpError(
       400,
-      'New password must be at least 8 characters and include uppercase, lowercase, and number characters',
+      'New password must be at least 6 characters',
     )
   }
 

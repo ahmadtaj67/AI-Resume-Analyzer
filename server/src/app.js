@@ -7,7 +7,9 @@ import authRoutes from './routes/auth.routes.js'
 import healthRoutes from './routes/health.routes.js'
 import databaseHealthRoutes from './routes/databaseHealth.routes.js'
 import profileRoutes from './routes/profile.routes.js'
+import reportComparisonRoutes from './routes/reportComparison.routes.js'
 import resumeRoutes from './routes/resume.routes.js'
+import settingsRoutes from './routes/settings.routes.js'
 import serverConfig from './config/environment.js'
 import notFoundMiddleware from './middleware/notFound.middleware.js'
 import errorMiddleware from './middleware/error.middleware.js'
@@ -48,7 +50,9 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/health', healthRoutes)
 app.use('/api/health/database', databaseHealthRoutes)
 app.use('/api/profile', profileRoutes)
+app.use('/api/reports', reportComparisonRoutes)
 app.use('/api/resumes', resumeRoutes)
+app.use('/api/settings', settingsRoutes)
 
 app.use(notFoundMiddleware)
 app.use(errorMiddleware)

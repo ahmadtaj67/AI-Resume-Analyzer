@@ -45,6 +45,11 @@ const getNavigationItems = (pathname, user) => [
     isActive: pathname.startsWith('/reports'),
   },
   {
+    label: 'Compare',
+    href: '/compare',
+    isActive: pathname === '/compare',
+  },
+  {
     label: 'Profile',
     href: '/profile',
     isActive: pathname === '/profile',
@@ -134,8 +139,23 @@ function ReportsHistoryPage() {
 
           <div className="reports-state-message" aria-live="polite">
             {isLoading ? <p>Loading reports...</p> : null}
-            {errorMessage ? <p role="alert">{errorMessage}</p> : null}
+            {errorMessage ? (
+              <div className="state-message-actions" role="alert">
+                <p>{errorMessage}</p>
+                <button className="dashboard-secondary-action" onClick={fetchReports} type="button">
+                  Retry
+                </button>
+              </div>
+            ) : null}
           </div>
+
+          {isLoading ? (
+            <section className="dashboard-panel dashboard-skeleton-stack" aria-label="Loading report history">
+              <div className="dashboard-skeleton-line" />
+              <div className="dashboard-skeleton-line" />
+              <div className="dashboard-skeleton-line" />
+            </section>
+          ) : null}
 
           {!isLoading && !errorMessage && reports.length === 0 ? (
             <section className="reports-empty-state" aria-labelledby="reports-empty-title">

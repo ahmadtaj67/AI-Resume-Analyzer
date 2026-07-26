@@ -1,7 +1,12 @@
 import { useEffect, useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-function MobileNavigation({ navigationItems, onLogout, userInitials }) {
+function MobileNavigation({
+  navigationItems,
+  onLogout,
+  platformName = 'AI Resume Analyzer',
+  userInitials,
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const menuId = useId()
 
@@ -35,11 +40,11 @@ function MobileNavigation({ navigationItems, onLogout, userInitials }) {
 
   return (
     <header className="dashboard-mobile-header">
-      <Link className="dashboard-mobile-brand" to="/dashboard" aria-label="AI Resume Analyzer dashboard">
+      <Link className="dashboard-mobile-brand" to="/dashboard" aria-label={`${platformName} dashboard`}>
         <span className="dashboard-brand-mark" aria-hidden="true">
           AI
         </span>
-        <span>AI Resume Analyzer</span>
+        <span>{platformName}</span>
       </Link>
 
       <div className="dashboard-mobile-actions">
